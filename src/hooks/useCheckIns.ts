@@ -24,8 +24,15 @@ export function useCheckIns() {
     setCheckIns((prev) => [checkIn, ...prev]);
   };
 
+  // Delete a check-in by ID
+  const deleteCheckIn = (id: string) => {
+    setCheckIns((prev) => prev.filter((c) => c.id !== id));
+  };
+
+
   return {
     checkIns,
     addCheckIn,
+    deleteCheckIn,
   };
 }
