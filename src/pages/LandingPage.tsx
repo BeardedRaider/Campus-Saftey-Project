@@ -3,6 +3,7 @@ import LandingHero from "../components/landing/LandingHero";
 import LandingValueProps from "../components/landing/LandingValueProps";
 import LandingOffers from "../components/landing/LandingOffers";
 import LandingCTA from "../components/landing/LandingCTA";
+import LandingFooter from "../components/landing/LandingFooter";
 
 export default function LandingPage() {
   return (
@@ -13,10 +14,8 @@ export default function LandingPage() {
       <LandingOffers />
       <LandingCTA />
 
-      {/* Temporary placeholder until I build the next components */}
-      <div className="p-4">
-        <p className="text-gray-400">Landing page content coming soon...</p>
-      </div>
+      {/* Footer sits at the bottom */}
+      <LandingFooter />
     </div>
   );
 }
