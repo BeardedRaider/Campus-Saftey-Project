@@ -7,10 +7,18 @@ import Contacts from "./pages/Contacts";
 import CheckIns from "./pages/CheckIns";
 import Settings from "./pages/Settings";
 
+// Testing page for geolocation features
+import GeoTest from "./pages/GeoTest";
+
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <LandingPage />,
+  },
+  // TESTING ROUTE ONLY BELOW - REMOVE IN PRODUCTION
+  {
+    path: "/geotest",
+    element: <GeoTest />,// testing page for geolocation features
   },
   {
     path: "/app",
@@ -20,6 +28,7 @@ export const router = createBrowserRouter([
       { path: "contacts", element: <Contacts /> },
       { path: "check-ins", element: <CheckIns /> },
       { path: "settings", element: <Settings /> },
+
     ],
   },
 ]);
