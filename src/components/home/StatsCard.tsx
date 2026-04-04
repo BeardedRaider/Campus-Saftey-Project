@@ -19,16 +19,7 @@ export default function StatsCard({
   color,
 }: StatsCardProps) {
   return (
-    <div
-      className="
-        flex flex-col items-center 
-        bg-[#111] rounded-xl 
-        px-3 py-2 
-        shadow-md 
-        min-w-20
-        shrink
-      "
-    >
+    <div className="stat-tile w-28">
       <div className={`mb-1 ${color}`}>{icon}</div>
 
       <p className="text-lg font-semibold">{value}</p>
