@@ -1,17 +1,26 @@
-import { Check, Radar, Trash, X } from "lucide-react";
-import { useState } from "react";
-import { useCheckIns } from "../hooks/useCheckIns";
 import { useGeolocation } from "../hooks/useGeolocation";
+import { useCheckIns } from "../hooks/useCheckIns";
 import type { CheckIn } from "../types/CheckIn";
+import { useState } from "react";
+import {
+  Radar,
+  Check,
+  X,
+  MapPin,
+  Target,
+  Clock,
+  StickyNote,
+  Trash,
+} from "lucide-react";
 
 export default function CheckIns() {
   const { getCurrentLocation } = useGeolocation();
   const { checkIns, addCheckIn, deleteCheckIn } = useCheckIns();
 
-  const [note, setNote] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
+  const [note, setNote] = useState("");
 
   const handleCheckIn = async () => {
     setIsLoading(true);
@@ -21,16 +30,16 @@ export default function CheckIns() {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const newCheckIn: CheckIn = {
-            id: crypto.randomUUID(), // Generate a unique ID for the check-in
-            timestamp: Date.now(), // Include current timestamp in the check-in data
-            latitude: pos.coords.latitude, // Include latitude in the check-in data
-            longitude: pos.coords.longitude, // Include longitude in the check-in data
-            accuracy: pos.coords.accuracy, // Include accuracy in the check-in data
-            note: note.trim() || undefined, // Only include note if it's not empty
+            id: crypto.randomUUID(),
+            timestamp: Date.now(),
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+            accuracy: pos.coords.accuracy,
+            note: note.trim() || undefined,
           };
-          setNote(""); // clear input after check-in
 
           addCheckIn(newCheckIn);
+          setNote("");
           setIsLoading(false);
           setSuccess(true);
           setTimeout(() => setSuccess(false), 2000);
@@ -45,21 +54,31 @@ export default function CheckIns() {
   };
 
   return (
-    <div className="p-6 text-white relative">
-      <h1 className="text-2xl font-semibold mb-4">Check-Ins</h1>
+    <div className="p-6 text-white">
+      <h1 className="text-2xl font-semibold mb-6">Check-Ins</h1>
 
-      {/* // Check-in button with loading, success, and error states */}
+      {/* Note Input */}
+      <input
+        type="text"
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+        placeholder="Add a note (optional)"
+        className="w-full mb-4 px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:border-cyan-500 focus:outline-none transition"
+        maxLength={120}
+      />
+
+      {/* Check-In Button */}
       <button
         onClick={handleCheckIn}
         disabled={isLoading}
-        className={`px-4 py-2 rounded mb-6 flex items-center gap-2 transition-all ${
+        className={`w-full px-4 py-3 rounded-lg mb-8 flex items-center justify-center gap-2 font-medium transition-all shadow-md ${
           isLoading
             ? "bg-cyan-700 opacity-70"
             : success
               ? "bg-green-600"
               : error
                 ? "bg-red-600"
-                : "bg-cyan-500"
+                : "bg-cyan-500 hover:bg-cyan-400"
         }`}
       >
         {isLoading ? (
@@ -77,38 +96,43 @@ export default function CheckIns() {
           : success
             ? "Sent!"
             : error
-              ? "Not Checked-in"
+              ? "Failed"
               : "Send Check-In"}
       </button>
 
-      {/* // Note input field */}
-      <input
-        type="text"
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-        placeholder="Add a note (optional)"
-        className="w-full mb-4 px-3 py-2 rounded bg-gray-700 text-white placeholder-gray-400"
-        maxLength={120}
-      />
-
-      <h2 className="text-xl mb-2">Recent Check-Ins</h2>
+      {/* Recent Check-Ins */}
+      <h2 className="text-xl font-semibold mb-4">Recent Check-Ins</h2>
 
       <ul className="space-y-4">
         {checkIns.map((c) => (
           <li
             key={c.id}
-            className="bg-gray-800 p-4 rounded flex justify-between items-start"
+            className="bg-gray-800 p-4 rounded-lg shadow-sm flex justify-between items-start border border-gray-700"
           >
-            <div>
-              <p>
-                📍 {c.latitude.toFixed(5)}, {c.longitude.toFixed(5)}
+            <div className="space-y-1">
+              <p className="flex items-center gap-2 text-gray-300">
+                <MapPin size={18} className="text-cyan-400" />
+                {c.latitude.toFixed(5)}, {c.longitude.toFixed(5)}
               </p>
-              <p>🎯 Accuracy: {c.accuracy}m</p>
-              {c.note && <p>📝 {c.note}</p>}
-              <p>🕒 {new Date(c.timestamp).toLocaleString()}</p>
+
+              <p className="flex items-center gap-2 text-gray-300">
+                <Target size={18} className="text-purple-400" />
+                Accuracy: {c.accuracy}m
+              </p>
+
+              {c.note && (
+                <p className="flex items-center gap-2 text-gray-300">
+                  <StickyNote size={18} className="text-yellow-400" />
+                  {c.note}
+                </p>
+              )}
+
+              <p className="flex items-center gap-2 text-gray-400 text-sm">
+                <Clock size={16} />
+                {new Date(c.timestamp).toLocaleString()}
+              </p>
             </div>
 
-            {/* // Delete button */}
             <button
               onClick={() => deleteCheckIn(c.id)}
               className="text-red-400 hover:text-red-300 transition"
