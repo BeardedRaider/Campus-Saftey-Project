@@ -28,56 +28,26 @@ export default function TrackingButtons({
 
   return (
     <div className="flex flex-col gap-3 mt-6">
-      {/* Start Tracking */}
       {!isTracking && (
-        <button
-          onClick={startTracking}
-          className="
-            w-full py-3 rounded-xl 
-            bg-cyan-600 
-            shadow-md 
-            hover:bg-cyan-500 
-            transition 
-            flex items-center justify-center gap-2
-          "
-        >
+        <button onClick={startTracking} className="neon-button">
           <Play size={18} />
-          <span>Start Tracking</span>
+          Start Tracking
         </button>
       )}
 
-      {/* Stop Tracking */}
       {isTracking && (
-        <button
-          onClick={stopTracking}
-          className="
-            w-full py-3 rounded-xl 
-            bg-red-600 
-            shadow-md 
-            hover:bg-red-500 
-            transition 
-            flex items-center justify-center gap-2
-          "
-        >
+        <button onClick={stopTracking} className="neon-button bg-red-600">
           <Square size={18} />
-          <span>Stop Tracking</span>
+          Stop Tracking
         </button>
       )}
 
-      {/* New Check-In */}
       <button
         onClick={() => navigate("/app/check-ins")}
-        className="
-          w-full py-3 rounded-xl 
-          bg-purple-600 
-          shadow-md 
-          hover:bg-purple-500 
-          transition 
-          flex items-center justify-center gap-2
-        "
+        className="neon-button bg-neonPurple text-white"
       >
         <Plus size={18} />
-        <span>New Check-In</span>
+        New Check-In
       </button>
     </div>
   );

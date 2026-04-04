@@ -1,40 +1,32 @@
 // -------------------------------------------------------------
-// Component: StatsGrid
-// Purpose: Layout wrapper for the three stat cards.
-//
-// This version:
-// - Centers cards
-// - Allows natural auto-width sizing
-// - Wraps cleanly on small screens
-// - Matches wireframe spacing
+// Component: StatsCard
+// Purpose: Reusable stat tile with icon, value, and label.
 // -------------------------------------------------------------
 
-import StatsCard from "./StatsCard";
-import { CheckCircle, Clock, Users } from "lucide-react";
+import type { ReactNode } from "react";
 
-export default function StatsGrid() {
+interface StatsCardProps {
+  icon: ReactNode;
+  value: string | number;
+  label: string;
+  color: string;
+}
+
+export default function StatsCard({
+  icon,
+  value,
+  label,
+  color,
+}: StatsCardProps) {
   return (
-    <div className="flex flex-wrap justify-center gap-4 mt-4">
-      <StatsCard
-        icon={<CheckCircle size={22} />}
-        value="3"
-        label="Check-ins Today"
-        color="text-cyan-300"
-      />
+    <div className="stat-tile">
+      <div className={`mb-1 ${color}`}>{icon}</div>
 
-      <StatsCard
-        icon={<Clock size={22} />}
-        value="2.5h"
-        label="Tracking Time"
-        color="text-purple-300"
-      />
+      <p className="text-lg font-semibold">{value}</p>
 
-      <StatsCard
-        icon={<Users size={22} />}
-        value="4"
-        label="Emergency Contacts"
-        color="text-yellow-300"
-      />
+      <p className="text-[10px] text-gray-400 mt-1 text-center leading-tight">
+        {label}
+      </p>
     </div>
   );
 }
