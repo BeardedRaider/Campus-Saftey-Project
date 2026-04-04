@@ -2,12 +2,10 @@
 // Component: TrackingButtons
 // Purpose: Start/Stop tracking + New Check-In actions.
 //
-// This component:
-// - Uses Option C styling (solid + subtle shadow + glow)
-// - Integrates with useTracking hook
-// - Matches wireframe layout (stacked full-width buttons)
-// - Uses Lucide icons for clarity
-// - Navigates to the Check-Ins page for new check-ins
+// Updated:
+// - Uses new button system (btn-base + btn-cyan/purple/red)
+// - Removes legacy .neon-button
+// - Clean, consistent, design-system aligned
 // -------------------------------------------------------------
 
 import { Play, Square, Plus } from "lucide-react";
@@ -28,23 +26,26 @@ export default function TrackingButtons({
 
   return (
     <div className="flex flex-col gap-3 mt-6">
+      {/* Start Tracking (Primary Action — Cyan) */}
       {!isTracking && (
-        <button onClick={startTracking} className="neon-button">
+        <button onClick={startTracking} className="btn-base btn-cyan">
           <Play size={18} />
           Start Tracking
         </button>
       )}
 
+      {/* Stop Tracking (Danger — Red) */}
       {isTracking && (
-        <button onClick={stopTracking} className="neon-button bg-red-600">
+        <button onClick={stopTracking} className="btn-base btn-red">
           <Square size={18} />
           Stop Tracking
         </button>
       )}
 
+      {/* New Check-In (Secondary Action — Purple) */}
       <button
         onClick={() => navigate("/app/check-ins")}
-        className="neon-button bg-neonPurple text-white"
+        className="btn-base btn-purple"
       >
         <Plus size={18} />
         New Check-In

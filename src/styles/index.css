@@ -6,66 +6,113 @@
 ---------------------------------------------- */
 @layer components {
 
-    /* Card container */
+    /* -----------------------------------------
+       CARD CONTAINER
+       Used for: CurrentLocationCard, Check-In tiles,
+       any reusable card-like UI element.
+    ------------------------------------------ */
     .card {
-        background-color: #0d1226;
-        /* brandNavyLight */
+        background-color: #0d1226; /* brandNavyLight */
         border-radius: 14px;
-        /* rounded-card */
-        box-shadow: 0 0 6px rgba(0, 229, 255, 0.3);
-        /* neonSoft */
+        box-shadow: 0 0 6px rgba(0, 229, 255, 0.3); /* neonSoft */
         padding: 1rem;
-        /* p-4 */
     }
 
-    /* Section titles */
+    /* -----------------------------------------
+       SECTION TITLES
+       Used for: "Current Location", "Recent Check-Ins", etc.
+    ------------------------------------------ */
     .section-title {
-        font-size: 1.125rem;
-        /* text-lg */
-        font-weight: 600;
-        /* font-semibold */
+        font-size: 1.125rem; /* text-lg */
+        font-weight: 600;    /* font-semibold */
         margin-bottom: 0.5rem;
         color: #ffffff;
     }
 
-    /* Neon button */
-    .neon-button {
+    /* -----------------------------------------
+       BUTTON SYSTEM — Colour‑based variants
+       btn-base     → shared button layout
+       btn-cyan     → primary action
+       btn-purple   → secondary action
+       btn-yellow   → warning / highlight
+       btn-red      → danger / emergency
+    ------------------------------------------ */
+
+    .btn-base {
         width: 100%;
         padding: 0.75rem 1rem;
-        border-radius: 0.75rem;
-        /* rounded-xl */
-        background-color: #00e5ff;
-        /* neonCyan */
-        color: #000000;
+        border-radius: 0.75rem; /* rounded-xl */
         font-weight: 500;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        box-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
         transition: box-shadow 150ms ease, transform 150ms ease;
     }
 
-    .neon-button:hover {
+    /* Cyan — Primary */
+    .btn-cyan {
+        background-color: #00e5ff;
+        color: #000;
+        box-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
+    }
+    .btn-cyan:hover {
         box-shadow: 0 0 12px rgba(0, 229, 255, 0.8);
         transform: translateY(-1px);
     }
 
-    /* Stat tile */
+    /* Purple — Secondary */
+    .btn-purple {
+        background-color: #b388ff;
+        color: #000;
+        box-shadow: 0 0 10px rgba(179, 136, 255, 0.6);
+    }
+    .btn-purple:hover {
+        box-shadow: 0 0 12px rgba(179, 136, 255, 0.8);
+        transform: translateY(-1px);
+    }
+
+    /* Yellow — Warning / Highlight */
+    .btn-yellow {
+        background-color: #ffe066;
+        color: #000;
+        box-shadow: 0 0 10px rgba(255, 224, 102, 0.6);
+    }
+    .btn-yellow:hover {
+        box-shadow: 0 0 12px rgba(255, 224, 102, 0.8);
+        transform: translateY(-1px);
+    }
+
+    /* Red — Danger / Emergency */
+    .btn-red {
+        background-color: #ff4d4d;
+        color: #000;
+        box-shadow: 0 0 10px rgba(255, 77, 77, 0.6);
+    }
+    .btn-red:hover {
+        box-shadow: 0 0 12px rgba(255, 77, 77, 0.8);
+        transform: translateY(-1px);
+    }
+
+    /* -----------------------------------------
+       STAT TILE
+       Used inside StatsGrid
+    ------------------------------------------ */
     .stat-tile {
-        background-color: #0d1226;
-        /* brandNavyLight */
+        background-color: #0d1226; /* brandNavyLight */
         border-radius: 14px;
         box-shadow: 0 0 6px rgba(0, 229, 255, 0.3);
         padding: 0.5rem 0.75rem;
         display: flex;
         flex-direction: column;
         align-items: center;
-        min-width: 5rem;
-        /* min-w-20 */
+        min-width: 5rem; /* min-w-20 */
     }
 
-    /* Page background */
+    /* -----------------------------------------
+       PAGE BACKGROUND
+       Used on all app pages
+    ------------------------------------------ */
     .page-bg {
         min-height: 100vh;
         color: #ffffff;
