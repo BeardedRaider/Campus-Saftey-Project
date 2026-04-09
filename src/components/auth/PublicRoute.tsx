@@ -13,20 +13,19 @@
 // -------------------------------------------------------------
 
 import { Navigate } from "react-router-dom";
-import React from "react";
+import { useAuth } from "../../context/AuthProvider";
 
-interface PublicRouteProps {
+export default function PublicRoute({
+  children,
+}: {
   children: React.ReactNode;
-}
+}) {
+  const { isAuthenticated } = useAuth();
 
-export default function PublicRoute({ children }: PublicRouteProps) {
-  const user = localStorage.getItem("user");
-
-  // Already logged in → redirect to dashboard
-  if (user) {
+  if (isAuthenticated) {
     return <Navigate to="/app" replace />;
   }
 
-  // Not logged in → allow access
-  return children;
+  return <>{children}</>;
 }
+

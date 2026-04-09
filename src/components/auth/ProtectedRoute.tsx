@@ -12,20 +12,15 @@
 // -------------------------------------------------------------
 
 import { Navigate } from "react-router-dom";
-import React from "react";
+import { useAuth } from "../../context/AuthProvider";
 
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-}
+export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
 
-export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const user = localStorage.getItem("user");
-
-  // Not logged in → redirect to login
-  if (!user) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  // Logged in → allow access
-  return children;
+  return <>{children}</>;
 }
+
