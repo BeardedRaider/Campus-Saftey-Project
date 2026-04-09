@@ -2,32 +2,31 @@
 // Page: Settings
 // Purpose: Configure tracking + retry intervals + default contact
 //
-// UI uses dropdowns instead of raw ms inputs.
-// Values are stored in ms internally but displayed human-friendly.
+// Now uses:
+// - SettingsField component
+// - AnimatedButton component
+//
+// Clean, modular, scalable.
 // -------------------------------------------------------------
 
 import PageContainer from "../components/PageContainer";
 import { useSettings } from "../hooks/useSettings";
 import { useState, useEffect } from "react";
+import SettingsField from "../components/settings/SettingsField";
+import AnimatedButton from "../components/ui/AnimatedButton";
+import { Save } from "lucide-react";
 
 export default function Settings() {
   const { settings, saveSettings } = useSettings();
 
-  // -------------------------------------------------------------
-  // Load stored contacts from localStorage
-  // -------------------------------------------------------------
+  // Load contacts
   const [contacts, setContacts] = useState<{ id: string; name: string }[]>([]);
-
   useEffect(() => {
     const stored = localStorage.getItem("contacts");
-    if (stored) {
-      setContacts(JSON.parse(stored));
-    }
+    if (stored) setContacts(JSON.parse(stored));
   }, []);
 
-  // -------------------------------------------------------------
-  // Local editable state
-  // -------------------------------------------------------------
+  // Local state
   const [trackingInterval, setTrackingInterval] = useState(
     settings.trackingInterval,
   );
@@ -36,15 +35,20 @@ export default function Settings() {
     settings.defaultContactId,
   );
 
-  // -------------------------------------------------------------
-  // Dropdown options (stored in ms)
-  // -------------------------------------------------------------
+  // Sync when settings load
+  useEffect(() => {
+    setTrackingInterval(settings.trackingInterval);
+    setRetryInterval(settings.retryInterval);
+    setDefaultContactId(settings.defaultContactId);
+  }, [settings]);
+
+  // Dropdown options
   const trackingOptions = [
-    { label: "5 minutes", value: 5 * 60 * 1000 },
+    { label: "10 Sec Test", value: 10 * 1000 },
     { label: "10 minutes", value: 10 * 60 * 1000 },
     { label: "15 minutes", value: 15 * 60 * 1000 },
     { label: "20 minutes", value: 20 * 60 * 1000 },
-    { label: "Until stopped", value: 0 }, // special case
+    { label: "Until stopped", value: 0 },
   ];
 
   const retryOptions = [
@@ -56,79 +60,73 @@ export default function Settings() {
     { label: "5 minutes", value: 5 * 60 * 1000 },
   ];
 
-  // -------------------------------------------------------------
-  // Save handler
-  // -------------------------------------------------------------
+  const contactOptions = [
+    { label: "Select contact", value: "" },
+    ...contacts.map((c) => ({ label: c.name, value: c.id })),
+  ];
+
+  // Save animation state
+  const [isLoading, setIsLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error] = useState(false); // reserved for future validation
+
   const handleSave = () => {
+    setIsLoading(true);
+
     saveSettings({
       trackingInterval,
       retryInterval,
       defaultContactId,
     });
+
+    // Simulate save animation
+    setTimeout(() => {
+      setIsLoading(false);
+      setSuccess(true);
+
+      setTimeout(() => setSuccess(false), 1500);
+    }, 600);
   };
 
   return (
     <PageContainer>
       <h1 className="text-2xl font-bold text-white mb-6">Settings</h1>
 
-      {/* Tracking Interval */}
-      <div className="mb-6">
-        <label className="block text-gray-300 mb-2">Tracking Interval</label>
-        <select
-          value={trackingInterval}
-          onChange={(e) => setTrackingInterval(Number(e.target.value))}
-          className="w-full p-3 rounded-lg bg-[#0a0f1c] border border-cyan-400 text-white"
-        >
-          {trackingOptions.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-      </div>
+      <SettingsField
+        label="Tracking Interval"
+        value={trackingInterval}
+        onChange={(v) => setTrackingInterval(Number(v))}
+        options={trackingOptions}
+        borderColor="border-cyan-400"
+      />
 
-      {/* Retry Interval */}
-      <div className="mb-6">
-        <label className="block text-gray-300 mb-2">Retry Interval</label>
-        <select
-          value={retryInterval}
-          onChange={(e) => setRetryInterval(Number(e.target.value))}
-          className="w-full p-3 rounded-lg bg-[#0a0f1c] border border-purple-400 text-white"
-        >
-          {retryOptions.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-      </div>
+      <SettingsField
+        label="Retry Interval"
+        value={retryInterval}
+        onChange={(v) => setRetryInterval(Number(v))}
+        options={retryOptions}
+        borderColor="border-purple-400"
+      />
 
-      {/* Default Emergency Contact */}
-      <div className="mb-6">
-        <label className="block text-gray-300 mb-2">
-          Default Emergency Contact
-        </label>
-        <select
-          value={defaultContactId ?? ""}
-          onChange={(e) => setDefaultContactId(e.target.value)}
-          className="w-full p-3 rounded-lg bg-[#0a0f1c] border border-yellow-400 text-white"
-        >
-          <option value="">Select contact</option>
+      <SettingsField
+        label="Default Emergency Contact"
+        value={defaultContactId ?? ""}
+        onChange={(v) => setDefaultContactId(v)}
+        options={contactOptions}
+        borderColor="border-yellow-400"
+      />
 
-          {contacts.length === 0 && <option disabled>No contacts saved</option>}
-
-          {contacts.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Save Button */}
-      <button onClick={handleSave} className="btn-base btn-cyan w-full mt-4">
-        Save Settings
-      </button>
+      <AnimatedButton
+        onClick={handleSave}
+        isLoading={isLoading}
+        success={success}
+        error={error}
+        idleText="Save Settings"
+        loadingText="Saving..."
+        successText="Saved!"
+        errorText="Failed"
+        icon={<Save size={20} />}
+      />
     </PageContainer>
   );
 }
