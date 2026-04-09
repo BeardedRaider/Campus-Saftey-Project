@@ -3,18 +3,6 @@
 // Purpose: Reusable action button with loading, success,
 //          and error animations (same style as Check-In button).
 //
-// Props:
-// - onClick: function to run on press
-// - isLoading: boolean
-// - success: boolean
-// - error: boolean
-// - idleText: string (default button text)
-// - loadingText: string
-// - successText: string
-// - errorText: string
-// - icon: React component for idle state
-//
-// Styling matches Check-In button exactly.
 // -------------------------------------------------------------
 
 import { Radar, Check, X } from "lucide-react";

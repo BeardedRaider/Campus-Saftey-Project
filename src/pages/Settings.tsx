@@ -2,9 +2,10 @@
 // Page: Settings
 // Purpose: Configure tracking + retry intervals + default contact
 //
-// Now uses:
-// - SettingsField component
-// - AnimatedButton component
+// Uses:
+// - SettingsSectionHeader
+// - SettingsField
+// - AnimatedButton
 //
 // Clean, modular, scalable.
 // -------------------------------------------------------------
@@ -13,6 +14,7 @@ import PageContainer from "../components/PageContainer";
 import { useSettings } from "../hooks/useSettings";
 import { useState, useEffect } from "react";
 import SettingsField from "../components/settings/SettingsField";
+import SettingsSectionHeader from "../components/settings/SettingsSectionHeader";
 import AnimatedButton from "../components/ui/AnimatedButton";
 import { Save } from "lucide-react";
 
@@ -68,7 +70,7 @@ export default function Settings() {
   // Save animation state
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error] = useState(false); // reserved for future validation
+  const [error] = useState(false);
 
   const handleSave = () => {
     setIsLoading(true);
@@ -79,11 +81,9 @@ export default function Settings() {
       defaultContactId,
     });
 
-    // Simulate save animation
     setTimeout(() => {
       setIsLoading(false);
       setSuccess(true);
-
       setTimeout(() => setSuccess(false), 1500);
     }, 600);
   };
@@ -91,6 +91,8 @@ export default function Settings() {
   return (
     <PageContainer>
       <h1 className="text-2xl font-bold text-white mb-6">Settings</h1>
+
+      <SettingsSectionHeader title="Tracking Behaviour" />
 
       <SettingsField
         label="Tracking Interval"
@@ -107,6 +109,8 @@ export default function Settings() {
         options={retryOptions}
         borderColor="border-purple-400"
       />
+
+      <SettingsSectionHeader title="Emergency Contact" />
 
       <SettingsField
         label="Default Emergency Contact"
