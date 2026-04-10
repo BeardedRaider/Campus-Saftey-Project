@@ -10,7 +10,7 @@ import {
   Target,
   Clock,
   StickyNote,
-  Trash,
+  Trash2,
 } from "lucide-react";
 
 export default function CheckIns() {
@@ -137,7 +137,7 @@ export default function CheckIns() {
               onClick={() => deleteCheckIn(c.id)}
               className="text-red-400 hover:text-red-300 transition"
             >
-              <Trash size={20} />
+              <Trash2 size={20} />
             </button>
           </li>
         ))}

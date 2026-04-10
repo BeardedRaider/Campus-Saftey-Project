@@ -3,17 +3,17 @@
 // Purpose: Display list of all past tracking sessions.
 //
 // Updated:
-// - Delete icon moved to top-right corner (matches Check-Ins)
-// - Tightened spacing + cleaner layout
-// - Confirmation modal preserved
-// - View Session stays left-aligned for readability
+// - Added icons matching global Check-Ins styling
+// - Cyan for time/location, purple for route/points
+// - Tightened spacing
+// - Delete icon remains top-right
 // -------------------------------------------------------------
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import PageContainer from "../components/PageContainer";
 import { useTrackingHistory } from "../hooks/useTrackingHistory";
-import { Trash2 } from "lucide-react";
+import { Trash2, Calendar, CalendarCheck, Route } from "lucide-react";
 
 export default function TrackingHistory() {
   const { getSessions, deleteSession } = useTrackingHistory();
@@ -64,22 +64,31 @@ export default function TrackingHistory() {
             </button>
 
             {/* Session Info */}
-            <div>
-              <p className="text-sm text-gray-300">
-                <span className="text-gray-400">Started:</span>{" "}
-                {new Date(session.startedAt).toLocaleString()}
+            <div className="space-y-1">
+              <p className="flex items-center gap-2 text-sm text-gray-300">
+                <Calendar size={18} className="text-cyan-400" />
+                <span>
+                  <span className="text-gray-400">Started:</span>{" "}
+                  {new Date(session.startedAt).toLocaleString()}
+                </span>
               </p>
 
-              <p className="text-sm text-gray-300">
-                <span className="text-gray-400">Ended:</span>{" "}
-                {session.endedAt
-                  ? new Date(session.endedAt).toLocaleString()
-                  : "Active"}
+              <p className="flex items-center gap-2 text-sm text-gray-300">
+                <CalendarCheck size={18} className="text-cyan-400" />
+                <span>
+                  <span className="text-gray-400">Ended:</span>{" "}
+                  {session.endedAt
+                    ? new Date(session.endedAt).toLocaleString()
+                    : "Active"}
+                </span>
               </p>
 
-              <p className="text-sm text-gray-300">
-                <span className="text-gray-400">Points:</span>{" "}
-                {session.pointIds.length}
+              <p className="flex items-center gap-2 text-sm text-gray-300">
+                <Route size={18} className="text-purple-400" />
+                <span>
+                  <span className="text-gray-400">Points:</span>{" "}
+                  {session.pointIds.length}
+                </span>
               </p>
 
               <Link

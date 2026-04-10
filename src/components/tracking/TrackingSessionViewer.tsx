@@ -1,80 +1,122 @@
 // -------------------------------------------------------------
 // Component: TrackingSessionViewer
-// Purpose: Display all breadcrumb points for a single session.
+// Purpose: Display session summary + breadcrumb points.
 //
-// Shows:
-// - Session header (start, end, duration, total points)
-// - List of TrackingPointItem components
-//
-// Used in:
-// - TrackingSession page
-//
-// Lives in: src/components/tracking/TrackingSessionViewer.tsx
+// Updated to match global icon styling from Check-Ins:
+// - Cyan for location
+// - Purple for route/points
+// - Yellow for notes (not used here)
+// - Gray/default for timestamps
+// - Red for destructive actions (not used here)
 // -------------------------------------------------------------
 
-import type {
-  TrackingSession,
-  TrackingPoint,
-} from "../../hooks/useTrackingHistory";
-import TrackingPointItem from "./TrackingPointItem";
+import { Calendar, CalendarCheck, Clock, Route, MapPin } from "lucide-react";
 
-interface TrackingSessionViewerProps {
-  session: TrackingSession;
-  points: TrackingPoint[];
+interface Props {
+  session: {
+    id: string;
+    startedAt: number;
+    endedAt: number | null;
+    pointIds: string[];
+  };
+  points: {
+    id: string;
+    timestamp: number;
+    latitude: number;
+    longitude: number;
+  }[];
 }
 
-export default function TrackingSessionViewer({
-  session,
-  points,
-}: TrackingSessionViewerProps) {
-  const start = new Date(session.startedAt).toLocaleString();
-  const end = session.endedAt
-    ? new Date(session.endedAt).toLocaleString()
-    : "Active";
+export default function TrackingSessionViewer({ session, points }: Props) {
+  // Calculate duration
+  const durationMs = session.endedAt ? session.endedAt - session.startedAt : 0;
 
-  const durationMs = (session.endedAt ?? Date.now()) - session.startedAt;
-  const durationMin = Math.round(durationMs / 60000);
+  const durationMinutes = Math.max(1, Math.round(durationMs / 60000));
 
   return (
-    <div className="mt-4">
-      {/* Session Summary Header */}
-      <div className="bg-[#0a0f1c] border border-cyan-500 rounded-lg p-4 mb-6 shadow-md">
-        <h2 className="text-white font-semibold text-lg mb-2">
+    <div className="mt-4 space-y-6">
+      {/* ---------------------------------------------------------
+         Session Summary
+      ---------------------------------------------------------- */}
+      <div className="card">
+        <h3 className="text-lg font-semibold text-white mb-3">
           Session Summary
-        </h2>
+        </h3>
 
-        <div className="text-gray-300 text-sm space-y-1">
-          <p>
-            <span className="text-cyan-300 font-medium">Started:</span> {start}
+        <div className="space-y-2 text-sm text-gray-300">
+          <p className="flex items-center gap-2">
+            <Calendar size={18} className="text-cyan-400" />
+            <span>
+              <span className="text-gray-400">Started:</span>{" "}
+              {new Date(session.startedAt).toLocaleString()}
+            </span>
           </p>
-          <p>
-            <span className="text-cyan-300 font-medium">Ended:</span> {end}
+
+          <p className="flex items-center gap-2">
+            <CalendarCheck size={18} className="text-cyan-400" />
+            <span>
+              <span className="text-gray-400">Ended:</span>{" "}
+              {session.endedAt
+                ? new Date(session.endedAt).toLocaleString()
+                : "Active"}
+            </span>
           </p>
-          <p>
-            <span className="text-cyan-300 font-medium">Duration:</span>{" "}
-            {durationMin} min
+
+          <p className="flex items-center gap-2">
+            <Clock size={18} />
+            <span>
+              <span className="text-gray-400">Duration:</span> {durationMinutes}{" "}
+              min
+            </span>
           </p>
-          <p>
-            <span className="text-cyan-300 font-medium">Total Points:</span>{" "}
-            {points.length}
+
+          <p className="flex items-center gap-2">
+            <Route size={18} className="text-purple-400" />
+            <span>
+              <span className="text-gray-400">Total Points:</span>{" "}
+              {session.pointIds.length}
+            </span>
           </p>
         </div>
       </div>
 
-      {/* Breadcrumb Points */}
-      <h3 className="text-white font-semibold text-lg mb-3">
-        Breadcrumb Points
-      </h3>
+      {/* ---------------------------------------------------------
+         Breadcrumb Points
+      ---------------------------------------------------------- */}
+      <div className="card">
+        <h3 className="text-lg font-semibold text-white mb-3">
+          Breadcrumb Points
+        </h3>
 
-      {points.length === 0 ? (
-        <p className="text-gray-400 text-sm">No points recorded.</p>
-      ) : (
-        <div>
-          {points.map((point) => (
-            <TrackingPointItem key={point.id} point={point} />
+        {points.length === 0 && (
+          <p className="text-gray-400 text-sm">No points recorded.</p>
+        )}
+
+        <div className="space-y-4">
+          {points.map((p) => (
+            <div
+              key={p.id}
+              className="border border-gray-700 rounded-lg p-3 text-sm text-gray-300"
+            >
+              <p className="flex items-center gap-2 mb-1">
+                <Clock size={16} />
+                {new Date(p.timestamp).toLocaleString()}
+              </p>
+
+              <p className="flex items-center gap-2">
+                <MapPin size={16} className="text-cyan-400" />
+                <span>
+                  <span className="text-gray-400">Lat:</span>{" "}
+                  {p.latitude.toFixed(6)}
+                  {"  "}
+                  <span className="text-gray-400">Lng:</span>{" "}
+                  {p.longitude.toFixed(6)}
+                </span>
+              </p>
+            </div>
           ))}
         </div>
-      )}
+      </div>
     </div>
   );
 }
