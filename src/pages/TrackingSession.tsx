@@ -17,6 +17,7 @@ import PageContainer from "../components/PageContainer";
 import SettingsSectionHeader from "../components/settings/SettingsSectionHeader";
 import { useTrackingHistory } from "../hooks/useTrackingHistory";
 import TrackingSessionViewer from "../components/tracking/TrackingSessionViewer";
+import { ChevronLeft } from "lucide-react";
 
 export default function TrackingSession() {
   const { id } = useParams();
@@ -30,9 +31,20 @@ export default function TrackingSession() {
   if (!session) {
     return (
       <PageContainer>
-        <h1 className="text-2xl font-bold text-white mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">Tracking Session</h1>
+
+        {/* Back Button (tight spacing) */}
+        <Link
+          to="/app/tracking-history"
+          className="flex items-center text-cyan-300 text-sm mb-6 hover:underline"
+        >
+          <ChevronLeft size={18} className="mr-1" />
+          Back to Tracking History
+        </Link>
+
+        <h2 className="text-xl font-semibold text-white mb-4">
           Session Not Found
-        </h1>
+        </h2>
 
         <p className="text-gray-400 mb-4">
           The tracking session you're trying to view does not exist.
@@ -42,7 +54,7 @@ export default function TrackingSession() {
           to="/app/tracking-history"
           className="text-cyan-400 underline text-sm"
         >
-          Back to Tracking History
+          Return to Tracking History
         </Link>
       </PageContainer>
     );
@@ -50,7 +62,16 @@ export default function TrackingSession() {
 
   return (
     <PageContainer>
-      <h1 className="text-2xl font-bold text-white mb-6">Tracking Session</h1>
+      <h1 className="text-2xl font-bold text-white mb-2">Tracking Session</h1>
+
+      {/* Back Button (tight spacing) */}
+      <Link
+        to="/app/tracking-history"
+        className="flex items-center text-cyan-300 text-sm mb-6 hover:underline"
+      >
+        <ChevronLeft size={18} className="mr-1" />
+        Back to Tracking History
+      </Link>
 
       <SettingsSectionHeader title="Session Details" />
 
