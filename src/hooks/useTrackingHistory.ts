@@ -19,6 +19,7 @@
 // - startSession()
 // - addPoint()
 // - endSession()
+// - deleteSession()   <-- NEW
 // - getSessions()
 // - getSessionById()
 // - getPointsForSession()
@@ -141,6 +142,23 @@ export function useTrackingHistory() {
   }, []);
 
   // -----------------------------------------------------------
+  // Delete a session + all its points
+  // -----------------------------------------------------------
+  const deleteSession = useCallback((sessionId: string) => {
+    const sessions = loadSessions();
+    const points = loadPoints();
+
+    // Remove the session
+    const updatedSessions = sessions.filter((s) => s.id !== sessionId);
+
+    // Remove all points belonging to this session
+    const updatedPoints = points.filter((p) => p.sessionId !== sessionId);
+
+    saveSessions(updatedSessions);
+    savePoints(updatedPoints);
+  }, []);
+
+  // -----------------------------------------------------------
   // Get all sessions (most recent first)
   // -----------------------------------------------------------
   const getSessions = useCallback((): TrackingSession[] => {
@@ -169,6 +187,7 @@ export function useTrackingHistory() {
     startSession,
     addPoint,
     endSession,
+    deleteSession, // <-- EXPORTED
     getSessions,
     getSessionById,
     getPointsForSession,

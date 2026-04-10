@@ -1,38 +1,131 @@
 // -------------------------------------------------------------
 // Page: TrackingHistory
-// Purpose: Display a list of all tracking sessions.
+// Purpose: Display list of all past tracking sessions.
 //
-// This is the page shell. It loads sessions from the history hook
-// and will later render <TrackingHistoryList /> once the component
-// is built.
-//
-// For now, it shows a placeholder so we can test routing + data.
+// Updated:
+// - Delete icon moved to top-right corner (matches Check-Ins)
+// - Tightened spacing + cleaner layout
+// - Confirmation modal preserved
+// - View Session stays left-aligned for readability
 // -------------------------------------------------------------
 
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import PageContainer from "../components/PageContainer";
-import SettingsSectionHeader from "../components/settings/SettingsSectionHeader";
 import { useTrackingHistory } from "../hooks/useTrackingHistory";
-import TrackingHistoryList from "../components/tracking/TrackingHistoryList";
-
+import { Trash2 } from "lucide-react";
 
 export default function TrackingHistory() {
-  const { getSessions, getPointsForSession } = useTrackingHistory();
+  const { getSessions, deleteSession } = useTrackingHistory();
+  const [sessions, setSessions] = useState(getSessions());
 
-  // Load all sessions (sorted newest → oldest)
-  const sessions = getSessions();
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
-  // Build a point count map for the list component
-  const pointCounts = Object.fromEntries(
-    sessions.map((s) => [s.id, getPointsForSession(s.id).length]),
-  );
+  // -------------------------------------------------------------
+  // Trigger delete modal
+  // -------------------------------------------------------------
+  const requestDelete = (sessionId: string) => {
+    setPendingDeleteId(sessionId);
+    setShowConfirm(true);
+  };
+
+  // -------------------------------------------------------------
+  // Confirm deletion
+  // -------------------------------------------------------------
+  const handleDelete = () => {
+    if (!pendingDeleteId) return;
+
+    deleteSession(pendingDeleteId);
+
+    // Refresh list
+    setSessions(getSessions());
+
+    setShowConfirm(false);
+    setPendingDeleteId(null);
+  };
 
   return (
     <PageContainer>
       <h1 className="text-2xl font-bold text-white mb-6">Tracking History</h1>
 
-      <SettingsSectionHeader title="Past Tracking Sessions" />
+      {/* ---------------------------------------------------------
+         Past Sessions List
+      ---------------------------------------------------------- */}
+      <div className="space-y-4">
+        {sessions.map((session) => (
+          <div key={session.id} className="card relative">
+            {/* Delete Icon (top-right, same as Check-Ins) */}
+            <button
+              onClick={() => requestDelete(session.id)}
+              className="absolute top-3 right-3 text-red-400 hover:text-red-300 transition"
+            >
+              <Trash2 size={20} />
+            </button>
 
-      <TrackingHistoryList sessions={sessions} pointCounts={pointCounts} />
+            {/* Session Info */}
+            <div>
+              <p className="text-sm text-gray-300">
+                <span className="text-gray-400">Started:</span>{" "}
+                {new Date(session.startedAt).toLocaleString()}
+              </p>
+
+              <p className="text-sm text-gray-300">
+                <span className="text-gray-400">Ended:</span>{" "}
+                {session.endedAt
+                  ? new Date(session.endedAt).toLocaleString()
+                  : "Active"}
+              </p>
+
+              <p className="text-sm text-gray-300">
+                <span className="text-gray-400">Points:</span>{" "}
+                {session.pointIds.length}
+              </p>
+
+              <Link
+                to={`/app/tracking-history/${session.id}`}
+                className="text-cyan-300 text-sm underline mt-1 inline-block"
+              >
+                View Session →
+              </Link>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ---------------------------------------------------------
+         Delete Confirmation Modal
+      ---------------------------------------------------------- */}
+      {showConfirm && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-gray-900 p-6 rounded-lg w-80 border border-gray-700">
+            <h3 className="text-lg font-semibold text-white mb-3">
+              Delete Session?
+            </h3>
+
+            <p className="text-gray-300 text-sm mb-6">
+              This will permanently delete this tracking session and all
+              associated breadcrumb points.
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="px-3 py-1 text-sm text-gray-300 hover:text-white"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleDelete}
+                className="px-3 py-1 text-sm bg-red-600 hover:bg-red-500 text-white rounded"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </PageContainer>
   );
 }
