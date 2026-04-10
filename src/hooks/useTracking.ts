@@ -86,6 +86,7 @@ export function useTracking() {
             sessionIdRef.current,
             pos.coords.latitude,
             pos.coords.longitude,
+            Date.now(),
           );
         }
       },
