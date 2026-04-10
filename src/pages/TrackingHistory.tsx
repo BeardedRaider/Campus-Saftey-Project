@@ -13,7 +13,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import PageContainer from "../components/PageContainer";
 import { useTrackingHistory } from "../hooks/useTrackingHistory";
-import { Trash2, Calendar, CalendarCheck, Route } from "lucide-react";
+import { Trash2, Calendar, CalendarCheck, Route, Clock } from "lucide-react";
 
 export default function TrackingHistory() {
   const { getSessions, deleteSession } = useTrackingHistory();
@@ -80,6 +80,22 @@ export default function TrackingHistory() {
                   {session.endedAt
                     ? new Date(session.endedAt).toLocaleString()
                     : "Active"}
+                </span>
+              </p>
+
+              {/* Duration */}
+              <p className="flex items-center gap-2 text-sm text-gray-300">
+                <Clock size={18} className="text-gray-400" />
+                <span>
+                  <span className="text-gray-400">Duration:</span>{" "}
+                  {Math.max(
+                    1,
+                    Math.round(
+                      ((session.endedAt ?? Date.now()) - session.startedAt) /
+                        60000,
+                    ),
+                  )}{" "}
+                  min
                 </span>
               </p>
 
