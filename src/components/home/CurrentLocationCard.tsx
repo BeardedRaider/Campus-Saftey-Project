@@ -12,11 +12,12 @@
 
 import { MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
+import { formatDate } from "../../utils/formatDate";
 
 interface Props {
   isTracking: boolean;
   position: GeolocationPosition | null;
-  lastUpdated: string | null;
+  lastUpdated: number | null;
 }
 
 export default function CurrentLocationCard({
@@ -59,7 +60,7 @@ export default function CurrentLocationCard({
 
         <p className="mt-1">
           <span className="text-gray-400">Last updated:</span>{" "}
-          {lastUpdated || "N/A"}
+          {formatDate(lastUpdated)}
         </p>
       </div>
     </div>
