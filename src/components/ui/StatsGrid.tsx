@@ -3,7 +3,7 @@
 // Purpose: Layout wrapper for the three stat cards.
 // -------------------------------------------------------------
 
-import StatsCard from "./StatsCard";
+import StatsCard from "../home/StatsCard";
 import { CheckCircle, Clock, Users } from "lucide-react";
 
 export default function StatsGrid() {
