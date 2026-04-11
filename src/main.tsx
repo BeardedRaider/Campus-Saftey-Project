@@ -51,11 +51,11 @@ ReactDOM.createRoot(root).render(
   // - tracking pause logic works
   // - session expired modal can appear above all screens
   // -------------------------------------------------------------
-  <TrackingProvider>
-    <AuthProvider>
+  <AuthProvider>
+    <TrackingProvider>
       <AppWithModals />
-    </AuthProvider>
-  </TrackingProvider>,
+    </TrackingProvider>
+  </AuthProvider>
 );
 
 // -------------------------------------------------------------

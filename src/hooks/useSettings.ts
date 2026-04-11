@@ -11,6 +11,7 @@
 // -------------------------------------------------------------
 
 import { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthProvider";
 
 export interface AppSettings {
   trackingInterval: number; // stored in ms
@@ -26,22 +27,42 @@ const DEFAULT_SETTINGS: AppSettings = {
 };
 
 export function useSettings() {
+  const { user } = useAuth();
+
+  // -------------------------------------------------------------
+  // Per‑user storage key
+  // -------------------------------------------------------------
+  const STORAGE_KEY = `appSettings_${user?.id}`;
+
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
 
   // -------------------------------------------------------------
   // Load settings from localStorage on mount
   // -------------------------------------------------------------
   useEffect(() => {
-    const stored = localStorage.getItem("appSettings");
-    if (stored) setSettings(JSON.parse(stored));
-  }, []);
+    if (!user) return;
+
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        setSettings(JSON.parse(stored));
+      } catch {
+        console.error("Failed to parse settings");
+      }
+    } else {
+      // New user → start with defaults
+      setSettings(DEFAULT_SETTINGS);
+    }
+  }, [user]);
 
   // -------------------------------------------------------------
   // Save settings to localStorage
   // -------------------------------------------------------------
   const saveSettings = (newSettings: AppSettings) => {
     setSettings(newSettings);
-    localStorage.setItem("appSettings", JSON.stringify(newSettings));
+    if (user) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newSettings));
+    }
   };
 
   return {

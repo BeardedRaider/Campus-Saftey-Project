@@ -7,27 +7,25 @@
 // - Add new contact
 // - Edit existing contact
 // - Delete contact
-// - LocalStorage persistence
+// - LocalStorage persistence (per user)
 // - Floating add button
 //
 // Notes:
 // - Uses modular components for clean structure
-
-//paged cleaned/checked
+// - Now uses useContacts() hook for per‑user storage
 // -------------------------------------------------------------
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PageContainer from "../components/PageContainer";
 import ContactCard from "../components/contacts/ContactCard";
 import AddEditContactModal from "../components/contacts/AddEditContactModal";
 import type { Contact } from "../types/contact";
 import { Plus } from "lucide-react";
+import { useContacts } from "../hooks/useContacts";
 
 export default function Contacts() {
-  // -------------------------------------------------------------
-  // State: Contacts list + modal controls
-  // -------------------------------------------------------------
-  const [contacts, setContacts] = useState<Contact[]>([]);
+  const { contacts, addContact, updateContact, deleteContact } = useContacts();
+
   const [modalOpen, setModalOpen] = useState(false);
   const [mode, setMode] = useState<"add" | "edit">("add");
   const [activeContact, setActiveContact] = useState<Contact>({
@@ -35,21 +33,6 @@ export default function Contacts() {
     name: "",
     phone: "",
   });
-
-  // -------------------------------------------------------------
-  // Load contacts from localStorage on mount
-  // -------------------------------------------------------------
-  useEffect(() => {
-    const saved = localStorage.getItem("contacts");
-    if (saved) setContacts(JSON.parse(saved));
-  }, []);
-
-  // -------------------------------------------------------------
-  // Save contacts to localStorage whenever they change
-  // -------------------------------------------------------------
-  useEffect(() => {
-    localStorage.setItem("contacts", JSON.stringify(contacts));
-  }, [contacts]);
 
   // -------------------------------------------------------------
   // Add Contact
@@ -78,25 +61,13 @@ export default function Contacts() {
   // -------------------------------------------------------------
   const saveContact = () => {
     if (mode === "add") {
-      setContacts([...contacts, activeContact]);
+      addContact(activeContact);
     } else {
-      setContacts(
-        contacts.map((c) => (c.id === activeContact.id ? activeContact : c)),
-      );
+      updateContact(activeContact);
     }
     setModalOpen(false);
   };
 
-  // -------------------------------------------------------------
-  // Delete Contact
-  // -------------------------------------------------------------
-  const deleteContact = (id: string) => {
-    setContacts(contacts.filter((c) => c.id !== id));
-  };
-
-  // -------------------------------------------------------------
-  // Render
-  // -------------------------------------------------------------
   return (
     <PageContainer>
       <h1 className="text-2xl font-semibold mb-4">Emergency Contacts</h1>

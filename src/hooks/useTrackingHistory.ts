@@ -1,25 +1,22 @@
 // -------------------------------------------------------------
-// Hook: useTrackingHistory
+// Hook: useTrackingHistory (Per‑User Storage)
+//
 // Purpose: Manage tracking sessions + breadcrumb points.
 //
 // Stores:
 // - Tracking sessions (start/end times + list of point IDs)
 // - Tracking points (timestamp + lat/lng)
 //
-// Exposes:
-// - sessions (NEW)
-// - points (NEW)
-// - startSession()
-// - addPoint()
-// - endSession()
-// - deleteSession()
-// - getSessions()
-// - getSessionById()
-// - getPointsForSession()
+// Notes:
+// - Now fully isolated per user using user.id
+//   Example keys:
+//   trackingSessions_<userId>
+//   trackingPoints_<userId>
 // -------------------------------------------------------------
 
 import { useCallback } from "react";
 import { v4 as uuid } from "uuid";
+import { useAuth } from "../context/AuthProvider";
 
 // -------------------------------------------------------------
 // Types
@@ -40,33 +37,38 @@ export interface TrackingSession {
 }
 
 // -------------------------------------------------------------
-// LocalStorage helpers
-// -------------------------------------------------------------
-const SESSIONS_KEY = "trackingSessions";
-const POINTS_KEY = "trackingPoints";
-
-function loadSessions(): TrackingSession[] {
-  const raw = localStorage.getItem(SESSIONS_KEY);
-  return raw ? JSON.parse(raw) : [];
-}
-
-function loadPoints(): TrackingPoint[] {
-  const raw = localStorage.getItem(POINTS_KEY);
-  return raw ? JSON.parse(raw) : [];
-}
-
-function saveSessions(sessions: TrackingSession[]) {
-  localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
-}
-
-function savePoints(points: TrackingPoint[]) {
-  localStorage.setItem(POINTS_KEY, JSON.stringify(points));
-}
-
-// -------------------------------------------------------------
 // Hook
 // -------------------------------------------------------------
 export function useTrackingHistory() {
+  const { user } = useAuth();
+
+  // -------------------------------------------------------------
+  // Per‑user LocalStorage keys
+  // -------------------------------------------------------------
+  const SESSIONS_KEY = `trackingSessions_${user?.id}`;
+  const POINTS_KEY = `trackingPoints_${user?.id}`;
+
+  // -------------------------------------------------------------
+  // LocalStorage helpers (per user)
+  // -------------------------------------------------------------
+  const loadSessions = (): TrackingSession[] => {
+    const raw = localStorage.getItem(SESSIONS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  };
+
+  const loadPoints = (): TrackingPoint[] => {
+    const raw = localStorage.getItem(POINTS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  };
+
+  const saveSessions = (sessions: TrackingSession[]) => {
+    localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+  };
+
+  const savePoints = (points: TrackingPoint[]) => {
+    localStorage.setItem(POINTS_KEY, JSON.stringify(points));
+  };
+
   // Load everything into memory so the provider can access it
   const sessions = loadSessions();
   const points = loadPoints();
@@ -175,8 +177,8 @@ export function useTrackingHistory() {
   );
 
   return {
-    sessions, // NEW
-    points, // NEW
+    sessions,
+    points,
     startSession,
     addPoint,
     endSession,
