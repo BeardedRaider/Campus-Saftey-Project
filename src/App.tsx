@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Outlet } from "react-router-dom";
 import Layout from "./components/Layout";
 import PageContainer from "./components/PageContainer";
@@ -9,13 +10,16 @@ export default function App() {
   return (
     <Layout>
       <div className="safe-top safe-bottom min-h-screen flex flex-col">
-        <AppHeader />{/* Authenticated Header */}
-          <PageContainer>
+        <AppHeader />
+        {/* Authenticated Header */}
+        <PageContainer>
+          {/* This Suspense wrapper allows us to show a loading state while the page component is being loaded. Stopping the page from "flashing" */}
+          <Suspense fallback={<div className="page-bg min-h-screen" />}>
             <Outlet /> {/* This is where each page appears */}
-          </PageContainer>
+          </Suspense>
+        </PageContainer>
         <BottomNav /> {/* Persistent bottom navigation */}
-                <LandingFooter />
-        
+        <LandingFooter />
       </div>
     </Layout>
   );

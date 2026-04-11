@@ -12,12 +12,14 @@
 //
 // Notes:
 // - Uses modular components for clean structure
+
+//paged cleaned/checked
 // -------------------------------------------------------------
 
 import { useEffect, useState } from "react";
 import PageContainer from "../components/PageContainer";
 import ContactCard from "../components/contacts/ContactCard";
-import AddEditContactModal from "../components/contacts/AddeditcontactModal";
+import AddEditContactModal from "../components/contacts/AddEditContactModal";
 import type { Contact } from "../types/contact";
 import { Plus } from "lucide-react";
 

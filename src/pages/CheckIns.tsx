@@ -7,6 +7,8 @@
 // - NewCheckInModal for note + photo
 // - Uses useGeolocation + useCheckIns
 // - Clean, modular layout
+
+//paged cleaned/checked
 // -------------------------------------------------------------
 
 import { useState } from "react";

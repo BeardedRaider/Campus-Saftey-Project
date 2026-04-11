@@ -15,6 +15,7 @@ interface AuthInputProps {
   error?: string;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  autoComplete?: string; // Optional prop for autocomplete attribute
 }
 
 export default function AuthInput({
@@ -26,6 +27,7 @@ export default function AuthInput({
   error,
   value,
   onChange,
+  autoComplete,// Destructure the autoComplete prop
 }: AuthInputProps) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -53,6 +55,7 @@ export default function AuthInput({
           placeholder={placeholder}
           value={value}
           onChange={onChange}
+          autoComplete={autoComplete} // Pass the autoComplete prop to the input element
           className="flex-1 bg-transparent outline-none text-white"
         />
 

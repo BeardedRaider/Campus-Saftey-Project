@@ -4,6 +4,8 @@
 // -------------------------------------------------------------
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthProvider";
 import AuthPageWrapper from "../components/auth/AuthPageWrapper";
 import AuthInput from "../components/auth/AuthInput";
 import AuthCard from "../components/auth/AuthCard";
@@ -11,6 +13,9 @@ import { Mail, Lock } from "lucide-react";
 import { loginUser } from "../services/authService";
 
 export default function Login() {
+  const navigate = useNavigate();
+  const { login } = useAuth(); // ← IMPORTANT FIX
+
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -24,18 +29,15 @@ export default function Login() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-
-    // Clear general error when user types again
     setErrors({ ...errors, general: "" });
   };
 
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const newErrors = { email: "", password: "", general: "" };
     let hasError = false;
 
-    // Basic validation
     if (!form.email.includes("@")) {
       newErrors.email = "Enter a valid email.";
       hasError = true;
@@ -51,7 +53,6 @@ export default function Login() {
       return;
     }
 
-    // Hardcoded login check
     const result = loginUser(form.email, form.password);
 
     if (!result.success) {
@@ -63,9 +64,8 @@ export default function Login() {
       return;
     }
 
-    // Successful login
-    localStorage.setItem("user", JSON.stringify(result.user));
-    window.location.href = "/app";
+    login(result.user); // ← FIXED: use AuthProvider
+    navigate("/app"); // ← Redirect now works
   };
 
   return (
@@ -75,18 +75,15 @@ export default function Login() {
         to: "/register",
       }}
     >
-      {/* Title */}
-      <div className="mb-4">
+      <div className="mb-6">
         <h1 className="text-3xl font-bold tracking-wide">Login</h1>
         <p className="text-gray-400 mt-1">
           Welcome back — let’s get you signed in.
         </p>
       </div>
 
-      {/* Card */}
       <AuthCard>
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-          {/* General incorrect login error */}
           {errors.general && (
             <p className="text-red-400 text-sm mb-1">{errors.general}</p>
           )}
@@ -95,6 +92,7 @@ export default function Login() {
             label="Email"
             name="email"
             type="email"
+            autoComplete="email"
             placeholder="your.email@university.edu"
             icon={<Mail size={18} />}
             value={form.email}
@@ -106,6 +104,7 @@ export default function Login() {
             label="Password"
             name="password"
             type="password"
+            autoComplete="current-password"
             placeholder="••••••••"
             icon={<Lock size={18} />}
             value={form.password}
