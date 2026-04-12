@@ -71,7 +71,7 @@ export function useTracking() {
       (pos) => {
         setPosition(pos);
 
-        // HUMAN‑READABLE timestamp (the one you had before)
+        // HUMAN‑READABLE timestamp for UI display (not used for storage)
         setLastUpdated(new Date().toLocaleString());
 
         // Save breadcrumb point
@@ -80,7 +80,7 @@ export function useTracking() {
             sessionIdRef.current,
             pos.coords.latitude,
             pos.coords.longitude,
-            Date.now(), // REQUIRED 4th argument
+            Date.now(),
           );
         }
       },

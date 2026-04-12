@@ -4,7 +4,7 @@
 //
 // Features:
 // - Note input
-// - Photo capture (via PhotoCapture component)
+// - Photo capture (via CameraCapture component)
 // - Large preview + retake
 // - Send Check-In button
 // - Cancel button
@@ -15,13 +15,15 @@
 // - onSubmit: (data: { note: string; photo: string | null }) => void
 //
 // Notes:
-// - Matches the styling of your Contacts modal
+// - Updated to use getUserMedia() camera system
+// - Removed double-close bug (modal now closes only in parent)
+// - Matches styling of Contacts modal
 // - Wider modal (max-w-lg) for large photo preview
 // -------------------------------------------------------------
 
 import { X } from "lucide-react";
 import { useState } from "react";
-import PhotoCapture from "./PhotoCapture";
+import CameraCapture from "./CameraCapture";
 
 interface NewCheckInModalProps {
   isOpen: boolean;
@@ -37,16 +39,19 @@ export default function NewCheckInModal({
   const [note, setNote] = useState("");
   const [photo, setPhoto] = useState<string | null>(null);
 
+  // Modal closed → render nothing
   if (!isOpen) return null;
 
   // -------------------------------------------------------------
   // Handle form submission
+  // - Sends note + photo to parent
+  // - Clears local state
+  // - Parent handles closing + animations
   // -------------------------------------------------------------
   const handleSubmit = () => {
     onSubmit({ note: note.trim(), photo });
     setNote("");
     setPhoto(null);
-    onClose();
   };
 
   return (
@@ -73,8 +78,8 @@ export default function NewCheckInModal({
           maxLength={120}
         />
 
-        {/* Photo Capture Component */}
-        <PhotoCapture
+        {/* Camera Capture Component */}
+        <CameraCapture
           photo={photo}
           onPhotoCaptured={(base64) => setPhoto(base64)}
           onClearPhoto={() => setPhoto(null)}

@@ -7,13 +7,11 @@
 // - NewCheckInModal for note + photo
 // - Uses useGeolocation + useCheckIns
 // - Clean, modular layout
-
-//paged cleaned/checked
 // -------------------------------------------------------------
 
 import { useState } from "react";
 import PageContainer from "../components/PageContainer";
-import { useGeolocation } from "../hooks/useGeolocation";
+// import { useGeolocation } from "../hooks/useGeolocation";
 import { useCheckIns } from "../hooks/useCheckIns";
 import type { CheckIn } from "../types/CheckIn";
 import CheckInList from "../components/checkins/CheckInList";
@@ -21,10 +19,9 @@ import NewCheckInModal from "../components/checkins/NewCheckInModal";
 import { Plus, Radar, Check, X } from "lucide-react";
 
 export default function CheckIns() {
-  const { getCurrentLocation } = useGeolocation();
+  // const { getCurrentLocation } = useGeolocation();
   const { checkIns, addCheckIn, deleteCheckIn } = useCheckIns();
 
-  // Modal control
   const [modalOpen, setModalOpen] = useState(false);
 
   // Animated button states
@@ -40,12 +37,17 @@ export default function CheckIns() {
     photo: string | null;
   }) => {
     setIsLoading(true);
-    getCurrentLocation();
 
     // Delay to show animation + allow geolocation to resolve
     setTimeout(() => {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
+          if (!pos?.coords) {
+            setIsLoading(false);
+            setError(true);
+            return;
+          }
+
           const newCheckIn: CheckIn = {
             id: crypto.randomUUID(),
             timestamp: Date.now(),
@@ -57,6 +59,9 @@ export default function CheckIns() {
           };
 
           addCheckIn(newCheckIn);
+
+          // Close modal
+          setModalOpen(false);
 
           // Button animation
           setIsLoading(false);
@@ -97,7 +102,7 @@ export default function CheckIns() {
         onSubmit={handleCreateCheckIn}
       />
 
-      {/* Hidden animated button (modal handles UI now) */}
+      {/* Animated status bubbles */}
       {isLoading && (
         <div className="fixed top-20 right-6 bg-cyan-700 text-black p-3 rounded-full shadow-lg flex items-center gap-2">
           <Radar className="animate-spin-slow" size={20} />

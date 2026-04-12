@@ -14,7 +14,7 @@ import { loginUser } from "../services/authService";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth(); // ← IMPORTANT FIX
+  const { login } = useAuth(); 
 
   const [form, setForm] = useState({
     email: "",
@@ -64,8 +64,8 @@ export default function Login() {
       return;
     }
 
-    login(result.user); // ← FIXED: use AuthProvider
-    navigate("/app"); // ← Redirect now works
+    login(result.user);
+    navigate("/app"); 
   };
 
   return (
