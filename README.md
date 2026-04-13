@@ -1,73 +1,179 @@
-# React + TypeScript + Vite
+Campus Safety Buddy
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A mobile‑first safety companion for students travelling on or around campus.
+Built with React + TypeScript + Vite, the app provides real‑time tracking, breadcrumb route history, camera‑based wellbeing check‑ins, and emergency contact management — all running entirely in the browser using modern HTML5 hardware APIs.
 
-Currently, two official plugins are available:
+Features
+Real‑Time Tracking
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+    Uses navigator.geolocation.watchPosition()
 
-## React Compiler
+    Streams live GPS coordinates
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+    Saves breadcrumb points per session
 
-## Expanding the ESLint configuration
+    Generates session summaries
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Camera‑Based Wellbeing Check‑Ins
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+    Uses getUserMedia() for live camera preview
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+    Captures photos
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+    Compresses images to prevent iOS storage crashes
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+    Stores check‑ins with timestamp + coordinates
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Emergency Contacts
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+    Add, edit, and delete trusted contacts
+
+    Stored per user in LocalStorage
+
+LocalStorage Persistence
+
+All data is stored offline per user:
+
+trackingSessions_<userId>
+trackingPoints_<userId>
+checkins_<userId>
+contacts_<userId>
+user
+
+Session Expiry System
+
+    Auto‑logout after inactivity
+
+    Neon “Session Expired” modal
+
+    Timer pauses while tracking is active
+
+Mobile‑First UI
+
+    Tailwind CSS
+
+    Responsive layout
+
+    Designed for real‑world mobile use
+
+Tech Stack
+
+    React + TypeScript + Vite
+
+    React Router
+
+    Tailwind CSS
+
+    LocalStorage (offline persistence)
+
+    HTML5 Geolocation API
+
+    HTML5 Camera API
+
+    Vercel Deployment
+
+Installation & Setup
+Requirements
+
+    Node.js (v18+ recommended)
+
+    Git
+
+    Modern browser (Chrome, Safari, Edge)
+
+    HTTPS required for Camera & Geolocation APIs
+
+1. Clone the Repository
+git clone https://github.com/BeardedRaider/campus-safety-buddy.git
+cd campus-safety-buddy
+
+2. Install Dependencies
+npm install
+
+3. Start the Development Server
+npm run dev
+
+App will be available at:
+http://localhost:5173
+
+Running on Mobile
+
+    Ensure your phone and laptop are on the same Wi‑Fi network
+
+    Open the local Vite URL on your phone
+
+    Accept camera and location permissions
+
+    Add to Home Screen (PWA‑style behaviour)
+
+Deployment
+
+The app is deployed on Vercel, providing:
+
+    Automatic HTTPS
+
+    Global CDN
+
+    SPA routing
+
+    Fast mobile performance
+
+To deploy your own version:
+npm run build
+
+Upload the dist/ folder to Vercel or link your GitHub repo.
+
+src/
+ ├── components/
+ ├── context/
+ │    └── AuthProvider.tsx
+ ├── hooks/
+ │    ├── useTracking.ts
+ │    ├── useTrackingHistory.ts
+ │    ├── useCheckIns.ts
+ │    ├── useContacts.ts
+ ├── pages/
+ │    ├── Home.tsx
+ │    ├── Tracking.tsx
+ │    ├── History.tsx
+ │    ├── SessionViewer.tsx
+ │    ├── CheckIns.tsx
+ │    ├── Contacts.tsx
+ │    ├── Login.tsx
+ │    ├── Register.tsx
+ └── main.tsx
+
+Known Issues
+
+    iOS Safari has strict storage limits — large images may trigger quota errors
+
+    Camera permissions may require manual enabling in device settings
+
+    Background tab behaviour may pause tracking depending on device
+
+Future Improvements
+
+    Real‑time location sharing
+
+    Push notifications
+
+    Cloud backup
+
+    Map‑based route viewer
+
+    Multi‑device sync
+
+👤 Author
+
+Shane Crossman  
+B01740631
+University of the West of Scotland
+2025/26
+
+License
+
+This project was by Shane Crossman
+for educational and academic purposes.
+You may fork or reference it, but please credit the original author.
+Created for the COMP10013 – Dynamic Web Technologies module 
+at the University of the West of Scotland.
