@@ -1,24 +1,42 @@
 // -------------------------------------------------------------
 // Component: LandingCTA
-// Purpose: Final call-to-action card on the landing page,
+// Purpose: Call-to-action card on the landing page,
 //          encouraging users to register.
-// Notes:
-// - Converted to a glassy neon card to match landing design.
-// - Uses global .card styling for consistency.
-// - Button placed inside the card for stronger visual hierarchy.
 // -------------------------------------------------------------
 
 import { Link } from "react-router-dom";
+import { Users } from "lucide-react";
 
 export default function LandingCTA() {
   return (
-    <section className="pt-10 pb-16 px-4 text-center">
-      {/* ---------------------------------------------------------
-         CTA Card Container
-         - Uses global .card for glassy background + glow.
-         - Centered with consistent spacing.
-         --------------------------------------------------------- */}
-      <div className="card max-w-md mx-auto px-6 py-8">
+    <section className="pt-10 pb-16 px-4 text-center relative">
+      {/* Glow Pulse (behind the card) */}
+      <div
+        className="
+          absolute inset-0 flex justify-center pointer-events-none
+          animate-[pulseGlow_5s_ease-in-out_infinite]
+        "
+      >
+        <div
+          className="
+            w-96 h-96 rounded-full 
+            blur-[90px] opacity-35
+            bg-cyan-400/60
+          "
+        />
+      </div>
+
+      {/* CTA Card */}
+      <div className="card relative max-w-md mx-auto px-6 py-8">
+        {/* CTA Icon (now purple) */}
+        <Users
+          className="
+            w-12 h-12 mx-auto mb-4
+            text-purple-300
+            drop-shadow-[0_0_10px_rgba(179,136,255,0.8)]
+          "
+        />
+
         {/* CTA heading */}
         <h2 className="section-title mb-3">
           Ready to Join Your Campus Community?
@@ -30,15 +48,24 @@ export default function LandingCTA() {
           feel safer every day on campus.
         </p>
 
-        {/* ---------------------------------------------------------
-           CTA Button
-           - Uses global button system (btn-base + btn-cyan).
-           - Inline-flex ensures proper alignment.
-           --------------------------------------------------------- */}
-        <Link to="/register" className="btn-base btn-cyan inline-flex mx-auto">
+        {/* CTA Button (now purple) */}
+        <Link
+          to="/register"
+          className="btn-base btn-purple inline-flex mx-auto"
+        >
           Get Started
         </Link>
       </div>
+
+      {/* Glow pulse animation */}
+      <style>
+        {`
+          @keyframes pulseGlow {
+            0%, 100% { opacity: 0.35; transform: scale(1); }
+            50% { opacity: 0.55; transform: scale(1.15); }
+          }
+        `}
+      </style>
     </section>
   );
 }
