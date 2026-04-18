@@ -19,7 +19,7 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   return (
-    <div className="page-bg flex justify-center">
+    <div className="page-bg safe-top safe-bottom flex justify-center min-h-screen">
       {/* 
         Inner content container:
         - max-w-160 (640px)
