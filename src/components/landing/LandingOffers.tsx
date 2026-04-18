@@ -1,13 +1,6 @@
 // -------------------------------------------------------------
 // Component: LandingOffers
 // Purpose: Highlights student offers + campus updates.
-//
-// Updated:
-// - Removed all black backgrounds
-// - Uses global spacing (pt/pb instead of py-10)
-// - Replaced custom dark card with global `.card` styling
-// - Typography aligned with design system
-// - Clean, premium, consistent with app theme
 // -------------------------------------------------------------
 
 export default function LandingOffers() {

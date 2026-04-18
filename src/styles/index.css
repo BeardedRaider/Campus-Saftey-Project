@@ -40,6 +40,18 @@ body {
     /* Solid color behind home bar */
 }
 
+/* -------------------------------------------------------------
+   Neon Cyan Title (Global)
+   Purpose:
+   - Reusable neon cyan text style for landing hero + value props
+   - No @apply to avoid Tailwind build issues
+-------------------------------------------------------------- */
+.neon-cyan-title {
+    color: #22d3ee;
+    /* Tailwind's cyan-300 */
+    text-shadow: 0 0 6px #22d3ee;
+}
+
 /* ---------------------------------------------
    GLOBAL COMPONENT STYLES (Design System)
 ---------------------------------------------- */

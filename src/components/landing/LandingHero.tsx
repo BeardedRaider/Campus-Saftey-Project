@@ -17,9 +17,7 @@ export default function LandingHero() {
       </h1>
 
       {/* Tagline — Cyan (Primary theme, matches Home) */}
-      <p className="text-cyan-300 text-lg drop-shadow-[0_0_6px_#22D3EE]">
-        Stay safe. Stay connected.
-      </p>
+      <p className="neon-cyan-title text-lg">Stay safe. Stay connected.</p>
     </section>
   );
 }
