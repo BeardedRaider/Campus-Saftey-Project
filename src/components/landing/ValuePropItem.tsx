@@ -1,9 +1,5 @@
 // -------------------------------------------------------------
 // Component: ValuePropItem
-// Purpose:
-// - Reusable item for the Value Props card.
-// - Displays an icon, title, and description.
-// - Matches neon theme + global spacing.
 // -------------------------------------------------------------
 
 import type { LucideIcon } from "lucide-react";
@@ -12,7 +8,7 @@ interface ValuePropItemProps {
   icon: LucideIcon;
   title: string;
   description: string;
-  color: string; // e.g. "cyan", "yellow", "purple"
+  color: string;
 }
 
 export default function ValuePropItem({
@@ -30,17 +26,17 @@ export default function ValuePropItem({
   };
 
   return (
-    <div className="flex items-start gap-4">
+    <div className="flex items-start gap-3">
       {/* Icon container */}
       <div
-        className={`h-12 w-12 rounded-xl border flex items-center justify-center ${colorMap[color]}`}
+        className={`h-10 w-10 rounded-xl border flex items-center justify-center ${colorMap[color]}`}
       >
-        <Icon className="w-6 h-6" />
+        <Icon className="w-5 h-5" />
       </div>
 
       {/* Text */}
       <div>
-        <h3 className="text-white font-semibold mb-1">{title}</h3>
+        <h3 className="text-white font-semibold mb-0.5">{title}</h3>
         <p className="text-gray-400 text-sm leading-relaxed">{description}</p>
       </div>
     </div>

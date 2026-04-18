@@ -1,7 +1,6 @@
 // -------------------------------------------------------------
 // Component: LandingOffers
-// Purpose: Displays a horizontally swipeable carousel of offer
-//          cards with arrows and pagination indicators.
+// Purpose: Swipeable carousel of offer cards.
 // -------------------------------------------------------------
 
 import { useRef, useState, useEffect } from "react";
@@ -15,7 +14,6 @@ import {
 } from "lucide-react";
 import OfferCard from "./OfferCard";
 
-// Data for each slide in the carousel
 const cards = [
   {
     icon: GraduationCap,
@@ -45,15 +43,9 @@ const cards = [
 ];
 
 export default function LandingOffers() {
-  // Reference to the scrollable container
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Tracks which slide is currently centered
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // -------------------------------------------------------------
-  // Effect: Update activeIndex when the user scrolls manually.
-  // -------------------------------------------------------------
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -67,10 +59,6 @@ export default function LandingOffers() {
     return () => el.removeEventListener("scroll", handler);
   }, []);
 
-  // -------------------------------------------------------------
-  // Scrolls to a specific slide programmatically.
-  // Used by arrow buttons and pagination dots.
-  // -------------------------------------------------------------
   const scrollTo = (index: number) => {
     const el = scrollRef.current;
     if (!el) return;
@@ -82,22 +70,16 @@ export default function LandingOffers() {
   };
 
   return (
-    <section className="pt-12 pb-16 px-4">
-      {/* Section heading */}
+    <div className="px-4">
       <h2 className="section-title neon-cyan-title text-center mb-3">
         What's Happening on Campus
       </h2>
 
-      {/* Section description */}
-      <p className="text-gray-300 text-center max-w-md mx-auto mb-10 leading-relaxed">
+      <p className="text-gray-300 text-center max-w-md mx-auto mb-6 leading-relaxed">
         Everything you need to make the most of student life.
       </p>
 
-      {/* ---------------------------------------------------------
-         Carousel container (arrows + scrollable track)
-         --------------------------------------------------------- */}
       <div className="relative w-full mx-auto">
-        {/* Left arrow */}
         <button
           onClick={() => scrollTo(Math.max(activeIndex - 1, 0))}
           disabled={activeIndex === 0}
@@ -115,11 +97,6 @@ export default function LandingOffers() {
           <ChevronLeft className="w-5 h-5" />
         </button>
 
-        {/* ---------------------------------------------------------
-           Scrollable track
-           - Uses snap-x + snap-center for native swipe feel.
-           - Each slide centers itself in the viewport.
-           --------------------------------------------------------- */}
         <div
           ref={scrollRef}
           className="
@@ -130,23 +107,15 @@ export default function LandingOffers() {
           {cards.map((card, i) => (
             <div
               key={i}
-              className="
-                w-full shrink-0 snap-center
-                flex justify-center
-              "
+              className="w-full shrink-0 snap-center flex justify-center"
             >
-              {/* 
-                Vertical padding ensures the glow isn't clipped
-                by the section above or below.
-              */}
-              <div className="w-[94%] max-w-md px-2 py-4">
+              <div className="w-[94%] max-w-md px-2 py-2">
                 <OfferCard {...card} />
               </div>
             </div>
           ))}
         </div>
 
-        {/* Right arrow */}
         <button
           onClick={() => scrollTo(Math.min(activeIndex + 1, cards.length - 1))}
           disabled={activeIndex === cards.length - 1}
@@ -165,10 +134,7 @@ export default function LandingOffers() {
         </button>
       </div>
 
-      {/* ---------------------------------------------------------
-         Pagination dots
-         --------------------------------------------------------- */}
-      <div className="flex justify-center mt-4 gap-2">
+      <div className="flex justify-center mt-2 gap-2">
         {cards.map((_, i) => (
           <button
             key={i}
@@ -180,6 +146,6 @@ export default function LandingOffers() {
           />
         ))}
       </div>
-    </section>
+    </div>
   );
 }

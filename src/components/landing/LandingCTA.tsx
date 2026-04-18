@@ -1,11 +1,6 @@
 // -------------------------------------------------------------
 // Component: LandingCTA
-// Purpose: Final call-to-action card on the landing page,
-//          encouraging users to register.
-// Notes:
-// - Icon + button use purple to avoid clashing with cyan glow.
-// - Glow pulse sits behind the card.
-// - Fade-in animation triggers when card enters viewport.
+// Purpose: Final call-to-action card on the landing page.
 // -------------------------------------------------------------
 
 import { useEffect, useRef, useState } from "react";
@@ -16,12 +11,6 @@ export default function LandingCTA() {
   const cardRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
-  // -------------------------------------------------------------
-  // Fade-in trigger using IntersectionObserver
-  // - threshold lowered so animation doesn't fire instantly
-  // - small delay ensures animation is visible even if card
-  //   is already partially in view on load
-  // -------------------------------------------------------------
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
@@ -41,12 +30,7 @@ export default function LandingCTA() {
   }, []);
 
   return (
-    <section className="pt-10 pb-16 px-4 text-center relative">
-      {/* ---------------------------------------------------------
-         Glow Pulse (behind the card)
-         - Stronger neon bloom
-         - Slow pulse animation
-         --------------------------------------------------------- */}
+    <div className="px-4 text-center relative">
       <div
         className="
           absolute inset-0 flex justify-center pointer-events-none
@@ -62,18 +46,14 @@ export default function LandingCTA() {
         />
       </div>
 
-      {/* ---------------------------------------------------------
-         CTA Card (fade-in animation applied here)
-         --------------------------------------------------------- */}
       <div
         ref={cardRef}
         className={`
-          card relative max-w-md mx-auto px-6 py-8
+          card relative max-w-md mx-auto px-6 py-6
           transition-all duration-700 ease-out
           ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"}
         `}
       >
-        {/* CTA Icon (purple variant) */}
         <Users
           className="
             w-12 h-12 mx-auto mb-4
@@ -82,18 +62,15 @@ export default function LandingCTA() {
           "
         />
 
-        {/* CTA heading */}
         <h2 className="section-title mb-3">
           Ready to Join Your Campus Community?
         </h2>
 
-        {/* Supporting text */}
-        <p className="text-gray-300 leading-relaxed mb-8">
+        <p className="text-gray-300 leading-relaxed mb-6">
           Connect with trusted contacts, stay aware of your surroundings, and
           feel safer every day on campus.
         </p>
 
-        {/* CTA Button (purple variant) */}
         <Link
           to="/register"
           className="btn-base btn-purple inline-flex mx-auto"
@@ -102,9 +79,6 @@ export default function LandingCTA() {
         </Link>
       </div>
 
-      {/* ---------------------------------------------------------
-         Glow pulse animation keyframes
-         --------------------------------------------------------- */}
       <style>
         {`
           @keyframes pulseGlow {
@@ -113,6 +87,6 @@ export default function LandingCTA() {
           }
         `}
       </style>
-    </section>
+    </div>
   );
 }

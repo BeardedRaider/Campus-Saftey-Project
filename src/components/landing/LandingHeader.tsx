@@ -1,12 +1,6 @@
 // -------------------------------------------------------------
 // Component: LandingHeader
 // Purpose: Top navigation bar for the landing page.
-//
-// Updated:
-// - Removed black background (now sits on global gradient)
-// - Uses consistent spacing (px-4 py-5)
-// - Typography + icon styling aligned with design system
-// - Clean, minimal, premium look
 // -------------------------------------------------------------
 
 import { Shield } from "lucide-react";
@@ -14,7 +8,7 @@ import { Link } from "react-router-dom";
 
 export default function LandingHeader() {
   return (
-    <header className="w-full flex items-center justify-between px-4 py-5">
+    <header className="w-full flex items-center justify-between px-4 py-3">
       {/* Logo + App Name */}
       <div className="flex items-center gap-2">
         <Shield className="w-7 h-7 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]" />

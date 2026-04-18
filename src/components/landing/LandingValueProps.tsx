@@ -1,9 +1,6 @@
 // -------------------------------------------------------------
 // Component: LandingValueProps
-// Purpose:
-// - A single unified card containing the title, supporting text,
-//   and three value proposition items.
-// - Matches the wireframe: app-like, clean, neon-accented.
+// Purpose: Unified card with title, text, and value props.
 // -------------------------------------------------------------
 
 import { Shield, MapPin, Users } from "lucide-react";
@@ -11,21 +8,17 @@ import ValuePropItem from "./ValuePropItem";
 
 export default function LandingValueProps() {
   return (
-    <section className="px-4 pt-12 pb-16">
-      {/* Card container */}
-      <div className="card max-w-md mx-auto space-y-8">
-        {/* Title */}
+    <div className="px-4">
+      <div className="card max-w-md mx-auto space-y-5">
         <h2 className="section-title neon-cyan-title text-center">
           Your Campus, Your Crew, Your Peace of Mind
         </h2>
 
-        {/* Supporting text (now part of the card, as per wireframe) */}
         <p className="text-gray-300 text-center leading-relaxed">
           Stay connected with trusted contacts, check in with friends, and feel
           confident knowing help is always within reach.
         </p>
 
-        {/* Value items */}
         <div className="space-y-6">
           <ValuePropItem
             icon={Shield}
@@ -49,6 +42,6 @@ export default function LandingValueProps() {
           />
         </div>
       </div>
-    </section>
+    </div>
   );
 }

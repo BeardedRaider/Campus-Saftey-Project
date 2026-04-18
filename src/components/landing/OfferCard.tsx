@@ -1,9 +1,5 @@
 // -------------------------------------------------------------
 // Component: OfferCard
-// Purpose:
-// - Reusable card for the horizontal carousel.
-// - Icon on top → title → description.
-// - Uses global `.card` styling for unified neon-glass look.
 // -------------------------------------------------------------
 
 import type { LucideIcon } from "lucide-react";
@@ -31,18 +27,18 @@ export default function OfferCard({
   };
 
   return (
-    <div className="card w-full max-w-md mx-auto shrink-0 snap-center text-center space-y-4">
+    <div className="card w-full max-w-md mx-auto shrink-0 snap-center text-center space-y-3">
       {/* Icon */}
       <div className="flex justify-center">
         <div
-          className={`h-14 w-14 rounded-2xl border flex items-center justify-center ${colorMap[color]}`}
+          className={`h-12 w-12 rounded-2xl border flex items-center justify-center ${colorMap[color]}`}
         >
-          <Icon className="w-7 h-7" />
+          <Icon className="w-6 h-6" />
         </div>
       </div>
 
       {/* Title */}
-      <h3 className="text-white font-semibold text-lg">{title}</h3>
+      <h3 className="text-white font-semibold text-base">{title}</h3>
 
       {/* Description */}
       <p className="text-gray-300 text-sm leading-relaxed">{description}</p>
