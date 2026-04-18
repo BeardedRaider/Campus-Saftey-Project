@@ -21,13 +21,15 @@ import Home from "./pages/Home";
 import Contacts from "./pages/Contacts";
 import CheckIns from "./pages/CheckIns";
 import Settings from "./pages/Settings";
-
+import TrackingHistory from "./pages/TrackingHistory";
+import TrackingSession from "./pages/TrackingSession";
 
 // Route protection
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import PublicRoute from "./components/auth/PublicRoute";
-import TrackingHistory from "./pages/TrackingHistory";
-import TrackingSession from "./pages/TrackingSession";
+
+// NEW: 404 page
+import NotFoundPage from "./pages/NotFoundPage";
 
 export const router = createBrowserRouter([
   {
@@ -54,6 +56,7 @@ export const router = createBrowserRouter([
       </PublicRoute>
     ),
   },
+
   // -------------------------------------------------------------
   // Authenticated App Routes
   // Wrapped inside <App /> layout
@@ -73,5 +76,16 @@ export const router = createBrowserRouter([
       { path: "tracking-history", element: <TrackingHistory /> },
       { path: "tracking-history/:id", element: <TrackingSession /> },
     ],
+  },
+
+  // -------------------------------------------------------------
+  // Catch-all route (404)
+  // Purpose:
+  // - Handles any route that doesn't match above
+  // - Shows the custom NotFoundPage
+  // -------------------------------------------------------------
+  {
+    path: "*",
+    element: <NotFoundPage />,
   },
 ]);

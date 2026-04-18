@@ -5,20 +5,20 @@
 // Notes:
 // - Matches LandingHeader styling
 // - Shows Logout instead of Login
-// - Clears user + redirects to /login
+// - Can optionally hide the Logout button (404 page)
 // -------------------------------------------------------------
 
 import { Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthProvider";
 
-export default function AppHeader() {
+export default function AppHeader({ hideLogout = false }) {
   const navigate = useNavigate();
-  const { logout } = useAuth(); // <-- use global logout
+  const { logout } = useAuth();
 
   const handleLogout = () => {
-    logout(); // <-- clears auth state properly
-    navigate("/login"); // <-- redirect to login
+    logout();
+    navigate("/login");
   };
 
   return (
@@ -30,13 +30,15 @@ export default function AppHeader() {
         </span>
       </div>
 
-      <button
-        onClick={handleLogout}
-        className="text-cyan-400 font-medium hover:text-cyan-300 transition-colors"
-      >
-        Logout
-      </button>
+      {/* Hide logout when needed (404 page) */}
+      {!hideLogout && (
+        <button
+          onClick={handleLogout}
+          className="text-cyan-400 font-medium hover:text-cyan-300 transition-colors"
+        >
+          Logout
+        </button>
+      )}
     </header>
   );
 }
-
