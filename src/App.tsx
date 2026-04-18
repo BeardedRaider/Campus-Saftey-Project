@@ -9,7 +9,7 @@ import LandingFooter from "./components/landing/LandingFooter";
 export default function App() {
   return (
     <Layout>
-      <div className="safe-top safe-bottom min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col">
         <AppHeader />
         {/* Authenticated Header */}
         <PageContainer>
