@@ -40,6 +40,16 @@ body {
     /* Solid color behind home bar */
 }
 
+/* Hide scrollbars for horizontal scroll areas */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
 /* -------------------------------------------------------------
    Neon Cyan Title (Global)
    Purpose:

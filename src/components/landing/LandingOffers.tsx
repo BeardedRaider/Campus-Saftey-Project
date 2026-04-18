@@ -1,14 +1,58 @@
 // -------------------------------------------------------------
-// Component: LandingOffers
+// Component: LandingOffers (Matches LandingValueProps layout)
 // Purpose:
-// - Highlights student offers in a clean, app-like card.
-// - Icon on top → title → description (matches wireframe).
-// - Uses unified global `.card` styling.
+// - One unified `.card` container (same as ValueProps)
+// - Arrows + dots outside the card
+// - No overflow, no clipping, no glow issues
 // -------------------------------------------------------------
 
-import { GraduationCap } from "lucide-react";
+import { useState } from "react";
+import {
+  GraduationCap,
+  Shield,
+  MapPin,
+  Users,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import OfferCard from "./OfferCard";
+
+const cards = [
+  {
+    icon: GraduationCap,
+    title: "Student Offers",
+    description:
+      "Exclusive discounts and deals for campus safety services and essentials.",
+    color: "purple" as const,
+  },
+  {
+    icon: Shield,
+    title: "Safety Workshops",
+    description: "Free campus-led safety training sessions every month.",
+    color: "cyan" as const,
+  },
+  {
+    icon: MapPin,
+    title: "Campus Events",
+    description: "Find out what's happening around campus this week.",
+    color: "yellow" as const,
+  },
+  {
+    icon: Users,
+    title: "Community Groups",
+    description: "Join student-led groups focused on wellbeing and support.",
+    color: "pink" as const,
+  },
+];
 
 export default function LandingOffers() {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const goPrev = () => setActiveIndex((i) => Math.max(i - 1, 0));
+  const goNext = () => setActiveIndex((i) => Math.min(i + 1, cards.length - 1));
+
+  const active = cards[activeIndex];
+
   return (
     <section className="pt-12 pb-16 px-4">
       {/* Section heading */}
@@ -16,28 +60,71 @@ export default function LandingOffers() {
         What's Happening on Campus
       </h2>
 
-      {/* Short description */}
       <p className="text-gray-300 text-center max-w-md mx-auto mb-10 leading-relaxed">
         Everything you need to make the most of student life.
       </p>
 
-      {/* Offers card */}
-      <div className="card max-w-md mx-auto text-center space-y-4">
-        {/* Icon */}
-        <div className="flex justify-center">
-          <div className="h-14 w-14 rounded-2xl bg-purple-400/10 border border-purple-400/40 flex items-center justify-center shadow-[0_0_14px_rgba(167,139,250,0.6)]">
-            <GraduationCap className="w-7 h-7 text-purple-300" />
-          </div>
-        </div>
+      {/* Arrows + Card */}
+      <div className="relative max-w-md mx-auto">
+        {/* Left arrow */}
+        <button
+          onClick={goPrev}
+          disabled={activeIndex === 0}
+          className="
+            absolute -left-6.5 top-1/2 -translate-y-1/2 z-10
+            p-2 rounded-full
+            bg-cyan-400/5
+            border border-cyan-400/20
+            shadow-[0_0_10px_rgba(34,211,238,0.25)]
+            backdrop-blur-sm
+            text-cyan-300
+            disabled:opacity-40 disabled:cursor-default
+          "
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
 
-        {/* Title */}
-        <h3 className="text-white font-semibold text-lg">Student Offers</h3>
+        {/* Card container — structure as LandingValueProps */}
+        
+          <OfferCard
+            icon={active.icon}
+            title={active.title}
+            description={active.description}
+            color={active.color}
+          />
+        
 
-        {/* Description */}
-        <p className="text-gray-300 text-sm leading-relaxed">
-          Exclusive discounts and deals for campus safety services and student
-          essentials.
-        </p>
+        {/* Right arrow */}
+        <button
+          onClick={goNext}
+          disabled={activeIndex === cards.length - 1}
+          className="
+            absolute -right-6.5 top-1/2 -translate-y-1/2 z-10
+            p-2 rounded-full
+            bg-cyan-400/5
+            border border-cyan-400/20
+            shadow-[0_0_10px_rgba(34,211,238,0.25)]
+            backdrop-blur-sm
+            text-cyan-300
+            disabled:opacity-40 disabled:cursor-default
+          "
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Pagination dots */}
+      <div className="flex justify-center mt-4 gap-2">
+        {cards.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setActiveIndex(i)}
+            className={`
+              h-2 w-2 rounded-full transition-all
+              ${i === activeIndex ? "bg-cyan-300" : "bg-gray-600"}
+            `}
+          />
+        ))}
       </div>
     </section>
   );
