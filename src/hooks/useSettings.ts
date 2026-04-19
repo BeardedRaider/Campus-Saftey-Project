@@ -1,9 +1,16 @@
 // -------------------------------------------------------------
-// Hook: useSettings (FINAL FIXED VERSION)
+// Hook: useSettings
+// Purpose: Load + save user tracking + safety preferences.
+//
+// Updated:
+// - Added bumpVersion() after saving settings
+//   → Forces SAFE app remount so Safari/PWA picks up new settings
+// - Does NOT remount during tracking (handled in AppWrapper)
 // -------------------------------------------------------------
 
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthProvider";
+import { useAppVersion } from "../context/AppVersionProvider";
 
 export interface AppSettings {
   trackingInterval: number;
@@ -12,28 +19,26 @@ export interface AppSettings {
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
-  trackingInterval: 10 * 1000,
+  trackingInterval: 10 * 1000, // 10 seconds for testing
   retryInterval: 30 * 1000,
   defaultContactId: null,
 };
 
 export function useSettings() {
   const { user } = useAuth();
+  const { bumpVersion } = useAppVersion();
+
+  const STORAGE_KEY = `appSettings_${user?.id}`;
 
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
 
   // -------------------------------------------------------------
-  // Load settings whenever the user changes
+  // Load settings on mount
   // -------------------------------------------------------------
   useEffect(() => {
-    if (!user) {
-      setSettings(DEFAULT_SETTINGS);
-      return;
-    }
+    if (!user) return;
 
-    const STORAGE_KEY = `appSettings_${user.id}`;
     const stored = localStorage.getItem(STORAGE_KEY);
-
     if (stored) {
       try {
         setSettings(JSON.parse(stored));
@@ -47,15 +52,16 @@ export function useSettings() {
   }, [user]);
 
   // -------------------------------------------------------------
-  // Save settings
+  // Save settings + update state
   // -------------------------------------------------------------
   const saveSettings = (newSettings: AppSettings) => {
     setSettings(newSettings);
 
     if (user) {
-      const STORAGE_KEY = `appSettings_${user.id}`;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newSettings));
     }
+
+    bumpVersion(); // force SAFE remount so new settings apply instantly
   };
 
   return {

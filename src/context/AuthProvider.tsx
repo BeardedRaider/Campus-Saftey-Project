@@ -8,6 +8,11 @@
 // - Prevents TrackingProvider from resetting
 // - Keeps auto-logout working
 // - Mobile-first activity detection
+//
+// Updated:
+// - Added bumpVersion() after login + logout
+//   → Ensures Safari/PWA reloads correct user + settings
+//   → SAFE remount (AppWrapper prevents remount during tracking)
 // -------------------------------------------------------------
 
 import React, {
@@ -17,6 +22,8 @@ import React, {
   useRef,
   useState,
 } from "react";
+
+import { useAppVersion } from "./AppVersionProvider"; // added
 
 interface AuthContextType {
   user: any;
@@ -40,6 +47,8 @@ const AuthContext = createContext<AuthContextType | null>(null);
 const INACTIVITY_LIMIT = 15 * 60 * 1000;
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const { bumpVersion } = useAppVersion();
+
   // -------------------------------------------------------------
   // User state
   // -------------------------------------------------------------
@@ -61,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [sessionExpired, setSessionExpired] = useState(false);
 
   // -------------------------------------------------------------
-  // ⭐ lastActivity stored in a REF (NOT state)
+  // lastActivity stored in a REF (NOT state)
   // This prevents re-renders on every activity event.
   // -------------------------------------------------------------
   const lastActivityRef = useRef(Date.now());
@@ -73,11 +82,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
     lastActivityRef.current = Date.now();
+
+    bumpVersion(); // SAFE remount after login
   };
 
   const logout = () => {
     localStorage.removeItem("user");
     setUser(null);
+
+    bumpVersion(); // ensures clean state after logout
   };
 
   const startTracking = () => {
@@ -117,7 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [isTracking]);
 
   // -------------------------------------------------------------
-  // ⭐ INACTIVITY CHECK LOOP (runs every second)
+  // INACTIVITY CHECK LOOP (runs every second)
   // Uses refs → NO re-renders
   // -------------------------------------------------------------
   useEffect(() => {
