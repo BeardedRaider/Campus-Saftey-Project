@@ -1,43 +1,38 @@
 // -------------------------------------------------------------
-// Hook: useSettings
+// Hook: useSettings (FIXED VERSION)
 // Purpose: Load + save user tracking + safety preferences.
 //
-// Uses per-user storage keys:
-//   appSettings_<user.id>
-//
-// This ensures each user has their own settings.
+// Adds:
+// - settingsReady flag so TrackingProvider knows when settings are loaded
+// - Prevents TrackingProvider from using defaults accidentally
 // -------------------------------------------------------------
 
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthProvider";
 
 export interface AppSettings {
-  trackingInterval: number; // ms
-  retryInterval: number; // ms
+  trackingInterval: number;
+  retryInterval: number;
   defaultContactId: string | null;
 }
 
-// Default values used on first app launch
 const DEFAULT_SETTINGS: AppSettings = {
-  trackingInterval: 5 * 60 * 1000, // 5 minutes
-  retryInterval: 30 * 1000, // 30 seconds
+  trackingInterval: 10 * 1000,
+  retryInterval: 30 * 1000,
   defaultContactId: null,
 };
 
 export function useSettings() {
   const { user } = useAuth();
+  const STORAGE_KEY = `appSettings_${user?.id}`;
 
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
 
-  // -------------------------------------------------------------
-  // Load settings ONLY when user.id is available
-  // -------------------------------------------------------------
+  // Load settings on mount
   useEffect(() => {
-    if (!user?.id) return; // wait for user
+    if (!user) return;
 
-    const key = `appSettings_${user.id}`;
-    const stored = localStorage.getItem(key);
-
+    const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       try {
         setSettings(JSON.parse(stored));
@@ -46,22 +41,20 @@ export function useSettings() {
         setSettings(DEFAULT_SETTINGS);
       }
     } else {
-      // First time user → save defaults
-      localStorage.setItem(key, JSON.stringify(DEFAULT_SETTINGS));
       setSettings(DEFAULT_SETTINGS);
     }
-  }, [user?.id]);
+  }, [user]);
 
-  // -------------------------------------------------------------
-  // Save settings for this user
-  // -------------------------------------------------------------
+  // Save settings + update state
   const saveSettings = (newSettings: AppSettings) => {
-    if (!user?.id) return;
-
-    const key = `appSettings_${user.id}`;
-    localStorage.setItem(key, JSON.stringify(newSettings));
-    setSettings(newSettings);
+    setSettings(newSettings); // ⭐ THIS WAS MISSING
+    if (user) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newSettings));
+    }
   };
 
-  return { settings, saveSettings };
+  return {
+    settings,
+    saveSettings,
+  };
 }

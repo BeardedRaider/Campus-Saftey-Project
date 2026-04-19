@@ -143,7 +143,7 @@ export default function Settings() {
       <SettingsField
         label="Default Emergency Contact"
         value={defaultContactId ?? ""}
-        onChange={(v) => setDefaultContactId(v)}
+        onChange={(v) => setDefaultContactId(v === "" ? "" : String(v))}
         options={contactOptions}
         borderColor="border-yellow-400"
       />

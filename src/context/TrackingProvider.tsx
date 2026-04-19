@@ -1,18 +1,8 @@
 // -------------------------------------------------------------
-// TrackingProvider (FINAL, STABLE, WORKING)
-// -------------------------------------------------------------
-// This version:
-// - Replaces the old useTracking hook entirely
-// - Saves breadcrumb points correctly (sessionIdRef FIXED)
-// - Auto-stops using a safe tick loop
-// - Retries watcher on error
-// - Tracks duration reliably
-// - Works with per-user settings
-// - Does NOT reset on activity events
+// TrackingProvider (RESET, MINIMAL, WORKING VERSION - FIXED STOP)
 // -------------------------------------------------------------
 
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-
 import { useTrackingHistory } from "../hooks/useTrackingHistory";
 import { useSettings } from "../hooks/useSettings";
 import type { TrackingSession } from "../hooks/useTrackingHistory";
@@ -33,47 +23,46 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
   const { settings } = useSettings();
   const { startSession, endSession, addPoint, sessions } = useTrackingHistory();
 
-  // Core state
   const [isTracking, setIsTracking] = useState(false);
   const [position, setPosition] = useState<GeolocationPosition | null>(null);
   const [lastUpdated, setLastUpdated] = useState<number | null>(null);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
 
-  // ⭐ NEW: session ID ref (fixes breadcrumb saving)
+  const watchIdRef = useRef<number | null>(null);
+  const autoStopTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Keep the current session ID in a ref so callbacks always see it
   const activeSessionIdRef = useRef<string | null>(null);
 
-  // Refs
-  const watchIdRef = useRef<number | null>(null);
-  const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Lock the interval used for THIS session
+  const sessionIntervalRef = useRef<number>(0);
 
-  // ⭐ Stable session start timestamp
-  const sessionStartRef = useRef<number | null>(null);
-
-  // Active session lookup
   const activeSession = activeSessionId
     ? sessions.find((s) => s.id === activeSessionId) || null
     : null;
 
   // -------------------------------------------------------------
-  // Helper: Restart ONLY the watcher (NOT the whole engine)
+  // Internal: start geolocation watcher
   // -------------------------------------------------------------
-  const restartWatcher = () => {
-    // Clear old watcher
+  const startWatcher = () => {
+    if (!("geolocation" in navigator)) {
+      console.error("Geolocation not available in this browser");
+      return;
+    }
+
     if (watchIdRef.current !== null) {
       navigator.geolocation.clearWatch(watchIdRef.current);
     }
 
-    // Start new watcher
     watchIdRef.current = navigator.geolocation.watchPosition(
       (pos) => {
         setPosition(pos);
         setLastUpdated(Date.now());
 
-        // ⭐ ALWAYS use the ref (state is stale inside callbacks)
-        const sessionId = activeSessionIdRef.current;
-        if (sessionId) {
+        const currentSessionId = activeSessionIdRef.current;
+        if (currentSessionId) {
           addPoint(
-            sessionId,
+            currentSessionId,
             pos.coords.latitude,
             pos.coords.longitude,
             Date.now(),
@@ -82,12 +71,7 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
       },
       (err) => {
         console.error("Geolocation error:", err);
-
-        // Retry after user-selected interval
-        retryTimeoutRef.current = setTimeout(
-          restartWatcher,
-          settings.retryInterval,
-        );
+        // For now: just log. Do not cancel timer or session.
       },
       {
         enableHighAccuracy: true,
@@ -98,76 +82,62 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
   };
 
   // -------------------------------------------------------------
-  // Start tracking
+  // Public: start tracking
   // -------------------------------------------------------------
   const startTracking = () => {
     if (isTracking) return;
 
     const sessionId = startSession();
-
-    // ⭐ Set both state AND ref
     setActiveSessionId(sessionId);
     activeSessionIdRef.current = sessionId;
-
     setIsTracking(true);
 
-    // ⭐ Record session start time
-    sessionStartRef.current = Date.now();
+    // Lock in the interval for this session
+    sessionIntervalRef.current = settings.trackingInterval;
+    console.log("SESSION INTERVAL LOCKED:", sessionIntervalRef.current);
 
-    // Clear retry timer
-    if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
+    // Auto-stop timer (fires ONCE, independent of GPS success)
+    if (sessionIntervalRef.current > 0) {
+      if (autoStopTimeoutRef.current) {
+        clearTimeout(autoStopTimeoutRef.current);
+      }
+      autoStopTimeoutRef.current = setTimeout(() => {
+        console.log("AUTO-STOP FIRED");
+        stopTracking();
+      }, sessionIntervalRef.current);
+    }
 
-    // Start GPS watcher
-    restartWatcher();
+    startWatcher();
   };
 
   // -------------------------------------------------------------
-  // Stop tracking
+  // Public: stop tracking
   // -------------------------------------------------------------
   const stopTracking = () => {
-    if (!isTracking) return;
+    console.log("STOP TRACKING CALLED", {
+      isTracking,
+      activeSessionIdRef: activeSessionIdRef.current,
+    });
 
-    // Stop watcher
     if (watchIdRef.current !== null) {
       navigator.geolocation.clearWatch(watchIdRef.current);
+      watchIdRef.current = null;
     }
 
-    // Stop retry timer
-    if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
-
-    // End session
-    if (activeSessionIdRef.current) {
-      endSession(activeSessionIdRef.current);
+    if (autoStopTimeoutRef.current) {
+      clearTimeout(autoStopTimeoutRef.current);
+      autoStopTimeoutRef.current = null;
     }
 
+    const currentSessionId = activeSessionIdRef.current;
+    if (currentSessionId) {
+      endSession(currentSessionId);
+    }
+
+    activeSessionIdRef.current = null;
     setIsTracking(false);
     setActiveSessionId(null);
-
-    // ⭐ Clear ref
-    activeSessionIdRef.current = null;
-
-    sessionStartRef.current = null;
   };
-
-  // -------------------------------------------------------------
-  // ⭐ AUTO-STOP INTERVAL (safe tick loop)
-  // -------------------------------------------------------------
-  useEffect(() => {
-    if (!isTracking) return;
-    if (settings.trackingInterval <= 0) return; // "Until stopped"
-
-    const tick = setInterval(() => {
-      if (!sessionStartRef.current) return;
-
-      const elapsed = Date.now() - sessionStartRef.current;
-
-      if (elapsed >= settings.trackingInterval) {
-        stopTracking();
-      }
-    }, 1000);
-
-    return () => clearInterval(tick);
-  }, [isTracking, settings.trackingInterval]);
 
   // -------------------------------------------------------------
   // Cleanup on unmount
@@ -177,7 +147,9 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
       if (watchIdRef.current !== null) {
         navigator.geolocation.clearWatch(watchIdRef.current);
       }
-      if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
+      if (autoStopTimeoutRef.current) {
+        clearTimeout(autoStopTimeoutRef.current);
+      }
     };
   }, []);
 
@@ -200,7 +172,8 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
 
 export function useTrackingContext() {
   const ctx = useContext(TrackingContext);
-  if (!ctx)
+  if (!ctx) {
     throw new Error("useTrackingContext must be used inside TrackingProvider");
+  }
   return ctx;
 }

@@ -1,18 +1,11 @@
 // -------------------------------------------------------------
-// Component: SettingsField
-// Purpose: Reusable dropdown field for Settings page.
-//
-// Includes:
-// - Label
-// - Styled select
-// - Custom arrow spacing
-// - Global neon theme
+// Component: SettingsField (CRASH-PROOF VERSION)
 // -------------------------------------------------------------
 
 interface SettingsFieldProps {
   label: string;
   value: string | number;
-  onChange: (value: string) => void;
+  onChange: (value: string | number) => void;
   options: { label: string; value: number | string }[];
   borderColor: string;
 }
@@ -31,7 +24,21 @@ export default function SettingsField({
       <div className="relative">
         <select
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => {
+            const raw = e.target.value;
+
+            // ⭐ FIX: empty string must stay empty string
+            if (raw === "") {
+              onChange("");
+              return;
+            }
+
+            // Convert numeric values
+            const num = Number(raw);
+            const finalValue = isNaN(num) ? raw : num;
+
+            onChange(finalValue);
+          }}
           className={`w-full p-3 pr-10 rounded-lg bg-[#0a0f1c] border ${borderColor} text-white
                       appearance-none bg-right bg-no-repeat`}
           style={{
