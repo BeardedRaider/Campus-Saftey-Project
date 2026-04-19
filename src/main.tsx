@@ -80,7 +80,9 @@ function AppWrapper() {
   // - Only when version changes
   // - Never on navigation
   // - Never during tracking
+  console.log("App remounted. Version:", version);
   return <AppWithModals key={version} />;
+  
 }
 
 ReactDOM.createRoot(root).render(

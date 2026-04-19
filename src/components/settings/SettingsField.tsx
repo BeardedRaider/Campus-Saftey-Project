@@ -1,5 +1,5 @@
 // -------------------------------------------------------------
-// Component: SettingsField (CRASH-PROOF VERSION)
+// Component: SettingsField
 // -------------------------------------------------------------
 
 interface SettingsFieldProps {
@@ -23,21 +23,18 @@ export default function SettingsField({
 
       <div className="relative">
         <select
-          value={value}
+          value={String(value)} // ⭐ FORCE STRING MATCHING
           onChange={(e) => {
             const raw = e.target.value;
 
-            // ⭐ FIX: empty string must stay empty string
             if (raw === "") {
               onChange("");
               return;
             }
 
-            // Convert numeric values
+            // ⭐ Convert back to number if numeric
             const num = Number(raw);
-            const finalValue = isNaN(num) ? raw : num;
-
-            onChange(finalValue);
+            onChange(isNaN(num) ? raw : num);
           }}
           className={`w-full p-3 pr-10 rounded-lg bg-[#0a0f1c] border ${borderColor} text-white
                       appearance-none bg-right bg-no-repeat`}
@@ -47,7 +44,9 @@ export default function SettingsField({
           }}
         >
           {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>
+            <option key={opt.value} value={String(opt.value)}>
+              {" "}
+              {/* ⭐ FORCE STRING */}
               {opt.label}
             </option>
           ))}

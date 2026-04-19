@@ -97,18 +97,30 @@ export default function Settings() {
   const [success, setSuccess] = useState(false);
   const [error] = useState(false);
 
+  // -------------------------------------------------------------
+  // Save handler (animation-friendly)
+  // -------------------------------------------------------------
   const handleSave = () => {
     setIsLoading(true);
 
+    console.log("Saving settings:", {
+      trackingInterval,
+      retryInterval,
+      defaultContactId,
+    });
+    // Save settings immediately (but remount is delayed inside hook)
     saveSettings({
       trackingInterval,
       retryInterval,
       defaultContactId,
     });
 
+    // Allow AnimatedButton to show loading → success
     setTimeout(() => {
       setIsLoading(false);
       setSuccess(true);
+
+      // Reset success state after animation
       setTimeout(() => setSuccess(false), 1500);
     }, 600);
   };

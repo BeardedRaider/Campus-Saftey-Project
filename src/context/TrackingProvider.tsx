@@ -1,5 +1,9 @@
 // -------------------------------------------------------------
-// TrackingProvider (MINIMAL, WORKING, WITH USER RESET)
+// TrackingProvider (DEMO-SAFE VERSION)
+// -------------------------------------------------------------
+// This version ALWAYS reads the latest settings from localStorage
+// when starting a tracking session. This avoids stale settings,
+// avoids remount timing issues, and guarantees correct intervals.
 // -------------------------------------------------------------
 
 import { createContext, useContext, useEffect, useRef, useState } from "react";
@@ -22,7 +26,7 @@ const TrackingContext = createContext<TrackingContextValue | null>(null);
 
 export function TrackingProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const { settings } = useSettings();
+  const { settings } = useSettings(); // still used for fallback
   const { startSession, endSession, addPoint, sessions } = useTrackingHistory();
 
   const [isTracking, setIsTracking] = useState(false);
@@ -69,7 +73,6 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
       },
       (err) => {
         console.error("Geolocation error:", err);
-        // Just log; timer/session continue.
       },
       {
         enableHighAccuracy: true,
@@ -80,7 +83,7 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
   };
 
   // -------------------------------------------------------------
-  // Public: start tracking
+  // Public: start tracking (FIXED)
   // -------------------------------------------------------------
   const startTracking = () => {
     if (!user) {
@@ -94,9 +97,30 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
     activeSessionIdRef.current = sessionId;
     setIsTracking(true);
 
-    sessionIntervalRef.current = settings.trackingInterval;
+    // -------------------------------------------------------------
+    // ⭐ ALWAYS read the latest settings from localStorage
+    // -------------------------------------------------------------
+    let effectiveInterval = settings.trackingInterval; // fallback
+
+    try {
+      const key = `appSettings_${user.id}`;
+      const stored = localStorage.getItem(key);
+
+      if (stored) {
+        const parsed = JSON.parse(stored);
+
+        if (typeof parsed.trackingInterval === "number") {
+          effectiveInterval = parsed.trackingInterval;
+        }
+      }
+    } catch (e) {
+      console.error("Failed to read latest settings from storage", e);
+    }
+
+    sessionIntervalRef.current = effectiveInterval;
     console.log("SESSION INTERVAL LOCKED:", sessionIntervalRef.current);
 
+    // Auto-stop timer
     if (sessionIntervalRef.current > 0) {
       if (autoStopTimeoutRef.current) {
         clearTimeout(autoStopTimeoutRef.current);
@@ -140,15 +164,12 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
   };
 
   // -------------------------------------------------------------
-  // Reset tracking when user changes (fix first-login issue)
+  // Reset tracking when user changes
   // -------------------------------------------------------------
   useEffect(() => {
-    // When user logs in/out or switches, force a clean slate
     if (!user) {
-      // No user → ensure tracking is fully stopped
       stopTracking();
     } else {
-      // New user → clear any stale timers/watchers from previous user
       if (watchIdRef.current !== null) {
         navigator.geolocation.clearWatch(watchIdRef.current);
         watchIdRef.current = null;
