@@ -3,9 +3,10 @@
 // Purpose: Display current tracking status + coordinates.
 //
 // Updated:
-// - Added Duration with live counter when tracking
+// - Duration now updates every second (not every minute)
+// - Duration format: m:ss (e.g., 11m:23s)
+// - Uses formatDuration helper
 // - Shows "N/A" when inactive
-// - Uses formatDate + formatDuration helpers
 // - Consistent neon theme + spacing
 // -------------------------------------------------------------
 
@@ -31,7 +32,7 @@ export default function CurrentLocationCard({
   const [liveDuration, setLiveDuration] = useState<string>("N/A");
 
   // -------------------------------------------------------------
-  // Live duration updater (runs every minute while tracking)
+  // Live duration updater (runs every second while tracking)
   // -------------------------------------------------------------
   useEffect(() => {
     if (!isTracking || !startedAt) {
@@ -39,15 +40,14 @@ export default function CurrentLocationCard({
       return;
     }
 
-    // Initial calculation
     const update = () => {
       const ms = Date.now() - startedAt;
-      setLiveDuration(formatDuration(ms));
+      setLiveDuration(formatDuration(ms)); // now shows m:ss
     };
 
     update(); // run immediately
 
-    const interval = setInterval(update, 60000); // update every minute
+    const interval = setInterval(update, 1000); // update every second
 
     return () => clearInterval(interval);
   }, [isTracking, startedAt]);
@@ -80,7 +80,6 @@ export default function CurrentLocationCard({
       <div className="mt-2 text-sm text-gray-300">
         {/* Coordinates */}
         <p>
-          
           <span className="text-gray-400">Coordinates:</span>{" "}
           {position
             ? `${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`

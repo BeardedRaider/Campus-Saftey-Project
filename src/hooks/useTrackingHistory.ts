@@ -1,26 +1,11 @@
 // -------------------------------------------------------------
 // Hook: useTrackingHistory (Per‑User Storage)
-//
-// Purpose: Manage tracking sessions + breadcrumb points.
-//
-// Stores:
-// - Tracking sessions (start/end times + list of point IDs)
-// - Tracking points (timestamp + lat/lng)
-//
-// Notes:
-// - Now fully isolated per user using user.id
-//   Example keys:
-//   trackingSessions_<userId>
-//   trackingPoints_<userId>
 // -------------------------------------------------------------
 
 import { useCallback } from "react";
 import { v4 as uuid } from "uuid";
 import { useAuth } from "../context/AuthProvider";
 
-// -------------------------------------------------------------
-// Types
-// -------------------------------------------------------------
 export interface TrackingPoint {
   id: string;
   sessionId: string;
@@ -36,47 +21,41 @@ export interface TrackingSession {
   pointIds: string[];
 }
 
-// -------------------------------------------------------------
-// Hook
-// -------------------------------------------------------------
 export function useTrackingHistory() {
   const { user } = useAuth();
 
-  // -------------------------------------------------------------
-  // Per‑user LocalStorage keys
-  // -------------------------------------------------------------
   const SESSIONS_KEY = `trackingSessions_${user?.id}`;
   const POINTS_KEY = `trackingPoints_${user?.id}`;
 
-  // -------------------------------------------------------------
-  // LocalStorage helpers (per user)
-  // -------------------------------------------------------------
   const loadSessions = (): TrackingSession[] => {
+    if (!user) return [];
     const raw = localStorage.getItem(SESSIONS_KEY);
     return raw ? JSON.parse(raw) : [];
   };
 
   const loadPoints = (): TrackingPoint[] => {
+    if (!user) return [];
     const raw = localStorage.getItem(POINTS_KEY);
     return raw ? JSON.parse(raw) : [];
   };
 
   const saveSessions = (sessions: TrackingSession[]) => {
+    if (!user) return;
     localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
   };
 
   const savePoints = (points: TrackingPoint[]) => {
+    if (!user) return;
     localStorage.setItem(POINTS_KEY, JSON.stringify(points));
   };
 
-  // Load everything into memory so the provider can access it
   const sessions = loadSessions();
   const points = loadPoints();
 
-  // -----------------------------------------------------------
   // Start a new tracking session
-  // -----------------------------------------------------------
   const startSession = useCallback((): string => {
+    if (!user) return "";
+
     const sessions = loadSessions();
 
     const newSession: TrackingSession = {
@@ -90,11 +69,9 @@ export function useTrackingHistory() {
     saveSessions(sessions);
 
     return newSession.id;
-  }, []);
+  }, [user, SESSIONS_KEY]);
 
-  // -----------------------------------------------------------
   // Add a breadcrumb point
-  // -----------------------------------------------------------
   const addPoint = useCallback(
     (
       sessionId: string,
@@ -102,6 +79,8 @@ export function useTrackingHistory() {
       longitude: number,
       timestamp: number,
     ) => {
+      if (!user) return;
+
       const sessions = loadSessions();
       const points = loadPoints();
 
@@ -122,73 +101,66 @@ export function useTrackingHistory() {
       savePoints(points);
       saveSessions(sessions);
     },
-    [],
+    [user, SESSIONS_KEY, POINTS_KEY],
   );
 
-  // -----------------------------------------------------------
   // End a session
-  // -----------------------------------------------------------
-  const endSession = useCallback((sessionId: string) => {
-    const sessions = loadSessions();
-    const session = sessions.find((s) => s.id === sessionId);
-    if (!session) return;
+  const endSession = useCallback(
+    (sessionId: string) => {
+      if (!user) return;
 
-    session.endedAt = Date.now();
-    saveSessions(sessions);
-  }, []);
+      const sessions = loadSessions();
+      const session = sessions.find((s) => s.id === sessionId);
+      if (!session) return;
 
-  // -----------------------------------------------------------
+      session.endedAt = Date.now();
+      saveSessions(sessions);
+    },
+    [user, SESSIONS_KEY],
+  );
+
   // Delete a session + all its points
-  // -----------------------------------------------------------
-  const deleteSession = useCallback((sessionId: string) => {
-    const sessions = loadSessions();
-    const points = loadPoints();
+  const deleteSession = useCallback(
+    (sessionId: string) => {
+      if (!user) return;
 
-    const updatedSessions = sessions.filter((s) => s.id !== sessionId);
-    const updatedPoints = points.filter((p) => p.sessionId !== sessionId);
+      const sessions = loadSessions();
+      const points = loadPoints();
 
-    saveSessions(updatedSessions);
-    savePoints(updatedPoints);
-  }, []);
+      const updatedSessions = sessions.filter((s) => s.id !== sessionId);
+      const updatedPoints = points.filter((p) => p.sessionId !== sessionId);
 
-  // -----------------------------------------------------------
-  // Get all sessions (sorted)
-  // -----------------------------------------------------------
+      saveSessions(updatedSessions);
+      savePoints(updatedPoints);
+    },
+    [user, SESSIONS_KEY, POINTS_KEY],
+  );
+
   const getSessions = useCallback((): TrackingSession[] => {
+    if (!user) return [];
     return loadSessions().sort((a, b) => b.startedAt - a.startedAt);
-  }, []);
+  }, [user, SESSIONS_KEY]);
 
-  // -----------------------------------------------------------
-  // Get a single session
-  // -----------------------------------------------------------
-  const getSessionById = useCallback((id: string): TrackingSession | null => {
-    return loadSessions().find((s) => s.id === id) || null;
-  }, []);
+  const getSessionById = useCallback(
+    (id: string): TrackingSession | null => {
+      if (!user) return null;
+      return loadSessions().find((s) => s.id === id) || null;
+    },
+    [user, SESSIONS_KEY],
+  );
 
-  // -----------------------------------------------------------
-  // Get all points for a session
-  // -----------------------------------------------------------
   const getPointsForSession = useCallback(
     (sessionId: string): TrackingPoint[] => {
+      if (!user) return [];
       const points = loadPoints().filter((p) => p.sessionId === sessionId);
       return points.sort((a, b) => a.timestamp - b.timestamp);
     },
-    [],
+    [user, POINTS_KEY],
   );
 
-  // -----------------------------------------------------------
-  // NEW: Get point counts for each session
-  //
-  // Returns:
-  // {
-  //   "sessionId1": 12,
-  //   "sessionId2": 4,
-  //   ...
-  // }
-  //
-  // Used by TrackingHistoryList to show "Points: X"
-  // -----------------------------------------------------------
   const getPointCounts = useCallback((): Record<string, number> => {
+    if (!user) return {};
+
     const sessions = loadSessions();
     const points = loadPoints();
 
@@ -201,7 +173,7 @@ export function useTrackingHistory() {
     });
 
     return counts;
-  }, []);
+  }, [user, SESSIONS_KEY, POINTS_KEY]);
 
   return {
     sessions,

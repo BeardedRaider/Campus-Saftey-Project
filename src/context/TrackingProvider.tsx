@@ -1,10 +1,11 @@
 // -------------------------------------------------------------
-// TrackingProvider (RESET, MINIMAL, WORKING VERSION - FIXED STOP)
+// TrackingProvider (MINIMAL, WORKING, WITH USER RESET)
 // -------------------------------------------------------------
 
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useTrackingHistory } from "../hooks/useTrackingHistory";
 import { useSettings } from "../hooks/useSettings";
+import { useAuth } from "../context/AuthProvider";
 import type { TrackingSession } from "../hooks/useTrackingHistory";
 
 interface TrackingContextValue {
@@ -20,6 +21,7 @@ interface TrackingContextValue {
 const TrackingContext = createContext<TrackingContextValue | null>(null);
 
 export function TrackingProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
   const { settings } = useSettings();
   const { startSession, endSession, addPoint, sessions } = useTrackingHistory();
 
@@ -30,11 +32,7 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
 
   const watchIdRef = useRef<number | null>(null);
   const autoStopTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Keep the current session ID in a ref so callbacks always see it
   const activeSessionIdRef = useRef<string | null>(null);
-
-  // Lock the interval used for THIS session
   const sessionIntervalRef = useRef<number>(0);
 
   const activeSession = activeSessionId
@@ -71,7 +69,7 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
       },
       (err) => {
         console.error("Geolocation error:", err);
-        // For now: just log. Do not cancel timer or session.
+        // Just log; timer/session continue.
       },
       {
         enableHighAccuracy: true,
@@ -85,6 +83,10 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
   // Public: start tracking
   // -------------------------------------------------------------
   const startTracking = () => {
+    if (!user) {
+      console.warn("Cannot start tracking without a user");
+      return;
+    }
     if (isTracking) return;
 
     const sessionId = startSession();
@@ -92,11 +94,9 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
     activeSessionIdRef.current = sessionId;
     setIsTracking(true);
 
-    // Lock in the interval for this session
     sessionIntervalRef.current = settings.trackingInterval;
     console.log("SESSION INTERVAL LOCKED:", sessionIntervalRef.current);
 
-    // Auto-stop timer (fires ONCE, independent of GPS success)
     if (sessionIntervalRef.current > 0) {
       if (autoStopTimeoutRef.current) {
         clearTimeout(autoStopTimeoutRef.current);
@@ -138,6 +138,31 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
     setIsTracking(false);
     setActiveSessionId(null);
   };
+
+  // -------------------------------------------------------------
+  // Reset tracking when user changes (fix first-login issue)
+  // -------------------------------------------------------------
+  useEffect(() => {
+    // When user logs in/out or switches, force a clean slate
+    if (!user) {
+      // No user → ensure tracking is fully stopped
+      stopTracking();
+    } else {
+      // New user → clear any stale timers/watchers from previous user
+      if (watchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+        watchIdRef.current = null;
+      }
+      if (autoStopTimeoutRef.current) {
+        clearTimeout(autoStopTimeoutRef.current);
+        autoStopTimeoutRef.current = null;
+      }
+      activeSessionIdRef.current = null;
+      setIsTracking(false);
+      setActiveSessionId(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   // -------------------------------------------------------------
   // Cleanup on unmount

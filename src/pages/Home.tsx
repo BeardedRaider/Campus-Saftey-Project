@@ -21,7 +21,7 @@ import TrackingButtons from "../components/home/TrackingButtons";
 import { useTrackingContext } from "../context/TrackingProvider";
 
 export default function Home() {
-  // ⭐ Pull tracking state from the global provider
+  // Pull tracking state from the global provider
   const {
     isTracking,
     position,

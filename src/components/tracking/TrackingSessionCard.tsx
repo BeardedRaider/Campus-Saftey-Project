@@ -3,10 +3,9 @@
 // Purpose: Display a single tracking session summary in a card.
 //
 // Updated:
-// - Lucide icons restored for consistency with Session Viewer
-// - Delete icon stays top-right
-// - "View session →" with icon on same line as Points
-// - Neon theme preserved
+// - Uses formatted duration passed from parent (m:ss or h m:ss)
+// - Removed old minute-only calculation
+// - Lucide icons + neon theme preserved
 // -------------------------------------------------------------
 
 import { Link } from "react-router-dom";
@@ -23,21 +22,20 @@ import type { TrackingSession } from "../../hooks/useTrackingHistory";
 interface TrackingSessionCardProps {
   session: TrackingSession;
   pointCount: number;
+  duration: string; // ⭐ now used
   onDelete: () => void;
 }
 
 export default function TrackingSessionCard({
   session,
   pointCount,
+  duration,
   onDelete,
 }: TrackingSessionCardProps) {
   const start = new Date(session.startedAt).toLocaleString();
   const end = session.endedAt
     ? new Date(session.endedAt).toLocaleString()
     : "Active";
-
-  const durationMs = (session.endedAt ?? Date.now()) - session.startedAt;
-  const durationMin = Math.max(1, Math.round(durationMs / 60000));
 
   return (
     <div className="relative bg-[#0a0f1c] border border-cyan-500 rounded-lg p-4 shadow-md">
@@ -74,12 +72,12 @@ export default function TrackingSessionCard({
             </span>
           </p>
 
-          {/* Duration */}
+          {/* Duration (formatted m:ss or h m:ss) */}
           <p className="flex items-center gap-2">
             <Clock size={18} className="text-[#c7d2e0]" />
             <span>
               <span className="text-cyan-300 font-medium">Duration:</span>{" "}
-              {durationMin} min
+              {duration}
             </span>
           </p>
 

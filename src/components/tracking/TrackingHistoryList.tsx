@@ -6,13 +6,14 @@
 // Updated:
 // - Handles delete modal + delete logic
 // - Passes onDelete to each card
-// - Clean, consistent, modular
+// - Added duration formatting using formatDuration()
 // -------------------------------------------------------------
 
 import { useState } from "react";
 import type { TrackingSession } from "../../hooks/useTrackingHistory";
 import { useTrackingHistory } from "../../hooks/useTrackingHistory";
 import TrackingSessionCard from "./TrackingSessionCard";
+import { formatDuration } from "../../utils/formatDuration";
 
 interface TrackingHistoryListProps {
   sessions: TrackingSession[];
@@ -61,14 +62,23 @@ export default function TrackingHistoryList({
   return (
     <>
       <div className="mt-4 space-y-4">
-        {localSessions.map((session) => (
-          <TrackingSessionCard
-            key={session.id}
-            session={session}
-            pointCount={localPointCounts[session.id] ?? 0}
-            onDelete={() => requestDelete(session.id)}
-          />
-        ))}
+        {localSessions.map((session) => {
+          const durationMs = session.endedAt
+            ? session.endedAt - session.startedAt
+            : 0;
+
+          const duration = session.endedAt ? formatDuration(durationMs) : "N/A";
+
+          return (
+            <TrackingSessionCard
+              key={session.id}
+              session={session}
+              pointCount={localPointCounts[session.id] ?? 0}
+              duration={duration} // ⭐ NEW
+              onDelete={() => requestDelete(session.id)}
+            />
+          );
+        })}
       </div>
 
       {/* Delete Confirmation Modal */}

@@ -1,10 +1,5 @@
 // -------------------------------------------------------------
-// Hook: useSettings (FIXED VERSION)
-// Purpose: Load + save user tracking + safety preferences.
-//
-// Adds:
-// - settingsReady flag so TrackingProvider knows when settings are loaded
-// - Prevents TrackingProvider from using defaults accidentally
+// Hook: useSettings (FINAL FIXED VERSION)
 // -------------------------------------------------------------
 
 import { useState, useEffect } from "react";
@@ -24,15 +19,21 @@ const DEFAULT_SETTINGS: AppSettings = {
 
 export function useSettings() {
   const { user } = useAuth();
-  const STORAGE_KEY = `appSettings_${user?.id}`;
 
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
 
-  // Load settings on mount
+  // -------------------------------------------------------------
+  // Load settings whenever the user changes
+  // -------------------------------------------------------------
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setSettings(DEFAULT_SETTINGS);
+      return;
+    }
 
+    const STORAGE_KEY = `appSettings_${user.id}`;
     const stored = localStorage.getItem(STORAGE_KEY);
+
     if (stored) {
       try {
         setSettings(JSON.parse(stored));
@@ -45,10 +46,14 @@ export function useSettings() {
     }
   }, [user]);
 
-  // Save settings + update state
+  // -------------------------------------------------------------
+  // Save settings
+  // -------------------------------------------------------------
   const saveSettings = (newSettings: AppSettings) => {
-    setSettings(newSettings); // ⭐ THIS WAS MISSING
+    setSettings(newSettings);
+
     if (user) {
+      const STORAGE_KEY = `appSettings_${user.id}`;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newSettings));
     }
   };
