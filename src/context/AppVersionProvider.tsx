@@ -1,42 +1,38 @@
 // -------------------------------------------------------------
-// AppVersionProvider
-// Purpose: Provide a global "version" number that forces a SAFE
-// remount of the app when bumpVersion() is called.
-//
-// - Does NOT remount on navigation
-// - Does NOT break tracking
-// - Used for login, settings save, and PWA resume
+// AppVersionProvider (FINAL — NO REMOUNTING AT ALL)
 // -------------------------------------------------------------
 
 import { createContext, useContext, useState } from "react";
-import type { ReactNode } from "react";
 
 interface AppVersionContextValue {
   version: number;
   bumpVersion: () => void;
 }
 
-const AppVersionContext = createContext<AppVersionContextValue>({
-  version: 0,
-  bumpVersion: () => {},
-});
+const AppVersionContext = createContext<AppVersionContextValue | null>(null);
 
-interface ProviderProps {
-  children: ReactNode; // FIXED TYPE
-}
-
-export function AppVersionProvider({ children }: ProviderProps) {
+export function AppVersionProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [version, setVersion] = useState(0);
 
-  const bumpVersion = () => setVersion((v) => v + 1);
+  const bumpVersion = () => {
+    setVersion((v) => v + 1);
+    console.log("App version bumped:", version + 1);
+  };
 
   return (
     <AppVersionContext.Provider value={{ version, bumpVersion }}>
-      {children}
+      {children} {/* ❗ NO key here */}
     </AppVersionContext.Provider>
   );
 }
 
 export function useAppVersion() {
-  return useContext(AppVersionContext);
+  const ctx = useContext(AppVersionContext);
+  if (!ctx)
+    throw new Error("useAppVersion must be used inside AppVersionProvider");
+  return ctx;
 }
