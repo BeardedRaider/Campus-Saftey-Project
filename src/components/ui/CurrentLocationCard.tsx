@@ -1,12 +1,15 @@
 // -------------------------------------------------------------
 // Component: CurrentLocationCard
-// Purpose: Display current tracking status + coordinates.
+// Purpose: Display current tracking status + address + map.
 //
-// Updated:
-// - Duration now updates every second (not every minute)
-// - Added small map thumbnail (bottom-right)
-// - Added reverse-geocoded address
-// - Coordinates removed (address is cleaner)
+// FIXED:
+// - Removed conditional hook call (React error)
+// - useReverseGeocode now runs unconditionally
+// - UI handles missing coords instead of skipping the hook
+//
+// Notes:
+// - This version is SAFE: no invalid hook calls
+// - Visual layout is unchanged
 // -------------------------------------------------------------
 
 import { MapPin, Clock } from "lucide-react";
@@ -32,11 +35,23 @@ export default function CurrentLocationCard({
 }: Props) {
   const [liveDuration, setLiveDuration] = useState<string>("N/A");
 
+  // Extract coords safely
   const lat = position?.coords.latitude;
   const lng = position?.coords.longitude;
 
-  const address =
-    lat && lng ? useReverseGeocode(lat, lng) : "Location unavailable";
+  // -------------------------------------------------------------
+  // ❗ FIX: Hook must run unconditionally
+  // -------------------------------------------------------------
+  // Before:
+  //   const address = lat && lng ? useReverseGeocode(lat, lng) : "Location unavailable";
+  //
+  // This caused React's "Should have a queue" error because the hook
+  // only ran when lat/lng existed.
+  //
+  // Now:
+  //   Hook ALWAYS runs, but gracefully handles null coords.
+  // -------------------------------------------------------------
+  const address = useReverseGeocode(lat, lng);
 
   // -------------------------------------------------------------
   // Live duration updater (runs every second while tracking)
@@ -53,9 +68,7 @@ export default function CurrentLocationCard({
     };
 
     update();
-
     const interval = setInterval(update, 1000);
-
     return () => clearInterval(interval);
   }, [isTracking, startedAt]);
 
@@ -84,28 +97,28 @@ export default function CurrentLocationCard({
       </p>
 
       {/* Address */}
-      <p className="text-sm text-cyan-300 mt-2 pr-24">
-        <span className="text-gray-400">Location:</span>{" "}
-        {address || "Loading..."}
+      <p className="text-sm text-gray-300 mt-2 pr-24">
+        <span className="text-cyan-300 font-medium">Location:</span>{" "}
+        {address || "Location unavailable"}
       </p>
 
       {/* Last Updated */}
       <p className="text-sm text-gray-300 mt-1">
-        <span className="text-gray-400">Last updated:</span>{" "}
+        <span className="text-cyan-300 font-medium">Last updated:</span>{" "}
         {formatDate(lastUpdated)}
       </p>
 
       {/* Duration */}
       <p className="mt-1 flex items-center gap-2 text-sm text-gray-300">
-        <Clock size={16} className="text-gray-400" />
+        <Clock size={16} className="text-[#c7d2e0]" />
         <span>
-          <span className="text-gray-400">Duration:</span> {liveDuration}
+          <span className="text-cyan-300 font-medium">Duration:</span> {liveDuration}
         </span>
       </p>
 
       {/* Small Map Thumbnail */}
       {lat && lng && (
-        <div className="absolute bottom-3 right-3 w-20 h-20 rounded-md overflow-hidden border border-gray-700 shadow-md">
+        <div className="absolute bottom-3 right-3 w-20 h-20 rounded-md overflow-hidden border border-cyan-500 shadow-md">
           <MapPreview lat={lat} lng={lng} zoom={16} />
         </div>
       )}

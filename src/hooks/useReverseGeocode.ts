@@ -1,19 +1,24 @@
 // -------------------------------------------------------------
-// Hook: useReverseGeocode
-// Purpose: Convert lat/lng → human-readable address.
-// Provider: OpenStreetMap Nominatim 
-// Caches results in LocalStorage to avoid repeated lookups.
+// Hook: useReverseGeocode (clean version)
+// Purpose: Convert lat/lng → short human-readable address.
+// Returns only: street, city, postcode
 // -------------------------------------------------------------
 
 import { useEffect, useState } from "react";
 
-export function useReverseGeocode(lat: number, lng: number) {
-  const [address, setAddress] = useState<string | null>(null);
-
-  const cacheKey = `geocode_${lat.toFixed(5)}_${lng.toFixed(5)}`;
+export function useReverseGeocode(lat?: number, lng?: number) {
+  const [address, setAddress] = useState<string>("");
 
   useEffect(() => {
-    // Check cache first
+    // No coords → clear address
+    if (lat == null || lng == null) {
+      setAddress("");
+      return;
+    }
+
+    const cacheKey = `geocode_${lat.toFixed(5)}_${lng.toFixed(5)}`;
+
+    // Check cache
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
       setAddress(cached);
@@ -28,14 +33,29 @@ export function useReverseGeocode(lat: number, lng: number) {
 
         const data = await res.json();
 
-        const formatted = data?.display_name || "Unknown location";
+        // Nominatim returns structured address fields
+        const a = data.address || {};
 
-        setAddress(formatted);
+        // Extract only what we want
+        const street =
+          a.road ||
+          a.residential ||
+          a.neighbourhood ||
+          a.suburb ||
+          a.hamlet ||
+          "";
+        const city = a.city || a.town || a.village || a.county || "";
+        const postcode = a.postcode || "";
+
+        // Build clean short address
+        const short = [street, city, postcode].filter(Boolean).join(", ");
+
+        setAddress(short);
 
         // Cache it
-        localStorage.setItem(cacheKey, formatted);
+        localStorage.setItem(cacheKey, short);
       } catch {
-        setAddress("Unknown location");
+        setAddress("");
       }
     };
 

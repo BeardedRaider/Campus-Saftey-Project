@@ -14,6 +14,7 @@ import {
   CalendarCheck,
   Clock,
   Route,
+  MapPin,
 } from "lucide-react";
 import type { TrackingSession } from "../../hooks/useTrackingHistory";
 import MapPreview from "../maps/MapPreview";
@@ -68,6 +69,7 @@ export default function TrackingSessionCard({
         <div className="text-gray-300 text-sm space-y-2">
           {/* Location (NEW) */}
           <p className="flex items-center gap-2">
+            <MapPin size={18} className="text-cyan-400" />
             <span className="text-cyan-300 font-medium">Location:</span>
             <span className="text-gray-300">
               {hasCoords ? address || "Loading..." : "Location unavailable"}

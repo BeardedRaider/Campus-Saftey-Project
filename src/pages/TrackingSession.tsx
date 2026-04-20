@@ -33,7 +33,6 @@ export default function TrackingSession() {
     return (
       <PageContainer>
         <h1 className="text-2xl font-bold text-white mb-1">Tracking Session</h1>
-
         <Link
           to="/app/tracking-history"
           className="flex items-center text-cyan-300 text-sm mb-3 hover:underline"

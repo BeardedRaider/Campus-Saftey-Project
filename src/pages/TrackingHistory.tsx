@@ -14,6 +14,8 @@ import PageContainer from "../components/PageContainer";
 import { useTrackingHistory } from "../hooks/useTrackingHistory";
 import { useAuth } from "../context/AuthProvider";
 import TrackingHistoryList from "../components/tracking/TrackingHistoryList";
+import { Link } from "react-router-dom";
+import { ChevronLeft } from "lucide-react";
 
 export default function TrackingHistory() {
   const { getSessions, getPointCounts } = useTrackingHistory();
@@ -30,7 +32,14 @@ export default function TrackingHistory() {
 
   return (
     <PageContainer>
-      <h1 className="text-2xl font-bold text-white mb-6">Tracking History</h1>
+      <h1 className="text-2xl font-bold text-white mb-1">Tracking History</h1>
+      <Link
+        to="/app"
+        className="flex items-center text-cyan-300 text-sm mb-3 hover:underline"
+      >
+        <ChevronLeft size={18} className="mr-1" />
+        Back to Home
+      </Link>
 
       <TrackingHistoryList sessions={sessions} pointCounts={pointCounts} />
     </PageContainer>
