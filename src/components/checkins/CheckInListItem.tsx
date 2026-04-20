@@ -1,18 +1,16 @@
 // -------------------------------------------------------------
 // Component: CheckInListItem
-// Purpose: Render a single check-in entry.
-//
-// Features:
-// - Shows coordinates, accuracy (whole number), note, timestamp
-// - Displays photo thumbnail if available
-// - Delete button
-//
-// Notes:
-// - Accuracy is floored (14.99 → 14) for clean display
+// Purpose: Render a single check-in entry with:
+// - Small map thumbnail (bottom-right)
+// - Reverse geocoded address
+// - Photo thumbnail
+// - Accuracy, note, timestamp
 // -------------------------------------------------------------
 
 import { Trash2 } from "lucide-react";
 import type { CheckIn } from "../../types/CheckIn";
+import MapPreview from "../maps/MapPreview";
+import { useReverseGeocode } from "../../hooks/useReverseGeocode";
 
 interface CheckInListItemProps {
   checkIn: CheckIn;
@@ -25,8 +23,11 @@ export default function CheckInListItem({
 }: CheckInListItemProps) {
   const accuracyWhole = Math.floor(checkIn.accuracy);
 
+  // Reverse geocoded address
+  const address = useReverseGeocode(checkIn.latitude, checkIn.longitude);
+
   return (
-    <li className="bg-gray-900 border border-gray-700 rounded-lg p-4 shadow-md relative">
+    <li className="bg-gray-900 border border-gray-700 rounded-lg p-4 shadow-md relative overflow-hidden">
       {/* Delete Button */}
       <button
         onClick={() => onDelete(checkIn.id)}
@@ -44,13 +45,13 @@ export default function CheckInListItem({
         />
       )}
 
-      {/* Coordinates */}
-      <p className="text-sm text-gray-300">
-        <span className="font-semibold">Coords:</span>{" "}
-        {checkIn.latitude.toFixed(5)}, {checkIn.longitude.toFixed(5)}
+      {/* Address */}
+      <p className="text-sm text-cyan-300 mb-1 pr-20">
+        <span className="font-semibold">Location:</span>{" "}
+        {address || "Loading..."}
       </p>
 
-      {/* Accuracy (whole number) */}
+      {/* Accuracy */}
       <p className="text-sm text-gray-300">
         <span className="font-semibold">Accuracy:</span> {accuracyWhole} m
       </p>
@@ -66,6 +67,11 @@ export default function CheckInListItem({
       <p className="text-xs text-gray-500 mt-2">
         {new Date(checkIn.timestamp).toLocaleString()}
       </p>
+
+      {/* Small Map Thumbnail (bottom-right) */}
+      <div className="absolute bottom-3 right-3 w-20 h-20 rounded-md overflow-hidden border border-gray-700 shadow-md">
+        <MapPreview lat={checkIn.latitude} lng={checkIn.longitude} zoom={16} />
+      </div>
     </li>
   );
 }

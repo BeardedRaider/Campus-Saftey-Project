@@ -2,7 +2,6 @@
 // Component: ProtectedRoute
 // Purpose: Restrict access to authenticated-only pages (/app/*).
 //
-// How it works:
 // - Checks if a user exists in localStorage
 // - If NOT logged in → redirect to /login
 // - If logged in → allow access to the protected page
